@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────
+   NEO-BRUTALISM DESIGN TOKENS
+───────────────────────────────────────── */
+:root {
+  --bg-primary: #FCFAF5;
+  --text-main: #000000;
+  --brand-purple: #B642FF;
+  --brand-yellow: #F7D61D;
+  --accent-red: #E60000;
+  --brutal-border: 3px solid #000000;
+  --brutal-shadow: 5px 5px 0px 0px #000000;
+  --brutal-shadow-sm: 3px 3px 0px 0px #000000;
+}
+
+/* ─────────────────────────────────────────
+   GLOBAL RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 700;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ─────────────────────────────────────────
+   TYPOGRAPHY
+───────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+/* ─────────────────────────────────────────
+   BRUTALIST UTILITY CLASSES
+───────────────────────────────────────── */
+.brutal-card {
+  border: var(--brutal-border);
+  box-shadow: var(--brutal-shadow);
+  border-radius: 0;
+  background: #fff;
+  padding: 1.5rem;
+}
+
+.brutal-card-yellow {
+  border: var(--brutal-border);
+  box-shadow: var(--brutal-shadow);
+  border-radius: 0;
+  background: var(--brand-yellow);
+  padding: 1.5rem;
+}
+
+.brutal-input {
+  border: var(--brutal-border);
+  box-shadow: var(--brutal-shadow-sm);
+  border-radius: 0;
+  padding: 0.75rem 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+  background: #fff;
+  transition: box-shadow 0.1s ease;
+}
+
+.brutal-input:focus {
+  box-shadow: 7px 7px 0px 0px #000;
+}
+
+/* ─────────────────────────────────────────
+   BRUTALIST BADGE
+───────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border: 2px solid #000;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badge-green {
+  background: #00D084;
+  color: #000;
+}
+
+.badge-yellow {
+  background: var(--brand-yellow);
+  color: #000;
+}
+
+.badge-red {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.badge-purple {
+  background: var(--brand-purple);
+  color: #fff;
+}
+
+/* ─────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-left: 2px solid #000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-purple);
+  border: 2px solid #000;
+}
+
+/* ─────────────────────────────────────────
+   ANIMATED BACKGROUND PATTERN
+───────────────────────────────────────── */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─────────────────────────────────────────
+   PAGE TRANSITIONS
+───────────────────────────────────────── */
+.page-enter {
+  animation: pageSlideIn 0.3s ease forwards;
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
