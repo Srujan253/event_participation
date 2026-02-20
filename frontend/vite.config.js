@@ -65,6 +65,10 @@ export default defineConfig({
     }),
   ],
   server: {
-    allowedHosts: 'all',
+    host: true,
+    allowedHosts: [
+      'appeared-permits-nylon-louise.trycloudflare.com',
+      '.trycloudflare.com',
+    ],
   },
 });
