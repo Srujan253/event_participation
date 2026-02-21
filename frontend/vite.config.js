@@ -66,9 +66,16 @@ export default defineConfig({
   ],
   server: {
     host: true,
+    historyApiFallback: true,
     allowedHosts: [
       'appeared-permits-nylon-louise.trycloudflare.com',
       '.trycloudflare.com',
     ],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
   },
 });
