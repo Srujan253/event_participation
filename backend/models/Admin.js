@@ -19,6 +19,21 @@ const adminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    role: {
+      type: String,
+      enum: ['super_admin', 'admin'],
+      default: 'admin',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    purpose: {
+      type: String,
+      // Required only for regular admins, super_admin is created via seed script
+      default: '',
+    },
   },
   { timestamps: true }
 );

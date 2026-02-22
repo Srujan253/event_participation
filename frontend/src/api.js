@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 // Helper: get stored token
 const getToken = () => localStorage.getItem('attendqr_token');
@@ -32,8 +32,9 @@ export const loginAdmin = async (data) => {
   });
   const json = await res.json();
   if (!res.ok) {
-    console.error('[loginAdmin] HTTP', res.status, json);
-    throw new Error(json.message || 'Login failed');
+    const err = new Error(json.message || 'Login failed');
+    err.status = json.status; // 'pending' | 'rejected'
+    throw err;
   }
   return json;
 };
@@ -79,3 +80,26 @@ export const getAttendanceRecords = (eventId) =>
   fetch(`${API_BASE}/attendance/event/${eventId}`, { headers: authHeaders() }).then((r) =>
     r.json()
   );
+
+// ─── SUPER ADMIN ──────────────────────────
+export const getSuperAdminStats = () =>
+  fetch(`${API_BASE}/superadmin/stats`, { headers: authHeaders() }).then((r) => r.json());
+
+export const getSuperAdminRequests = () =>
+  fetch(`${API_BASE}/superadmin/requests`, { headers: authHeaders() }).then((r) => r.json());
+
+export const updateAdminRequest = (id, status) =>
+  fetch(`${API_BASE}/superadmin/requests/${id}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ status }),
+  }).then((r) => r.json());
+
+export const getSuperAdminAdmins = () =>
+  fetch(`${API_BASE}/superadmin/admins`, { headers: authHeaders() }).then((r) => r.json());
+
+export const deleteSuperAdminAdmin = (id) =>
+  fetch(`${API_BASE}/superadmin/admins/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  }).then((r) => r.json());

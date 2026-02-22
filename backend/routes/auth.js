@@ -6,34 +6,27 @@ import protect from '../middleware/auth.js';
 const router = express.Router();
 
 // @route  POST /api/auth/register
-// @desc   Register a new admin
+// @desc   Register a new admin (status: pending, no token issued)
 // @access Public
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, purpose } = req.body;
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'All fields are required.' });
+    if (!username || !email || !password || !purpose) {
+      return res.status(400).json({ message: 'All fields are required, including purpose.' });
     }
 
     const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin) {
-      return res.status(409).json({ message: 'Admin with this email already exists.' });
+      return res.status(409).json({ message: 'An account with this email already exists.' });
     }
 
-    const admin = new Admin({ username, email, password });
+    const admin = new Admin({ username, email, password, purpose, status: 'pending', role: 'admin' });
     await admin.save();
 
-    const token = jwt.sign(
-      { id: admin._id, email: admin.email, username: admin.username },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.status(201).json({
-      message: 'Admin registered successfully.',
-      token,
-      admin: { id: admin._id, username: admin.username, email: admin.email },
+    // No token issued — account must be approved first
+    res.status(202).json({
+      message: 'Registration submitted. Your account is pending approval by the Super Admin.',
     });
   } catch (err) {
     console.error('[REGISTER ERROR]', err);
@@ -42,7 +35,7 @@ router.post('/register', async (req, res) => {
 });
 
 // @route  POST /api/auth/login
-// @desc   Login an admin
+// @desc   Login an admin (blocks pending/rejected)
 // @access Public
 router.post('/login', async (req, res) => {
   try {
@@ -62,8 +55,22 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
+    // Block pending or rejected accounts
+    if (admin.status === 'pending') {
+      return res.status(403).json({
+        message: 'Your account is pending approval. Please wait for the Super Admin to approve your request.',
+        status: 'pending',
+      });
+    }
+    if (admin.status === 'rejected') {
+      return res.status(403).json({
+        message: 'Your account has been rejected. Please contact the Super Admin.',
+        status: 'rejected',
+      });
+    }
+
     const token = jwt.sign(
-      { id: admin._id, email: admin.email, username: admin.username },
+      { id: admin._id, email: admin.email, username: admin.username, role: admin.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -71,7 +78,7 @@ router.post('/login', async (req, res) => {
     res.json({
       message: 'Login successful.',
       token,
-      admin: { id: admin._id, username: admin.username, email: admin.email },
+      admin: { id: admin._id, username: admin.username, email: admin.email, role: admin.role },
     });
   } catch (err) {
     console.error('[LOGIN ERROR]', err);
