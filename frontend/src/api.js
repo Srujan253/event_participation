@@ -103,3 +103,14 @@ export const deleteSuperAdminAdmin = (id) =>
     method: 'DELETE',
     headers: authHeaders(),
   }).then((r) => r.json());
+
+export const createSuperAdmin = (data) =>
+  fetch(`${API_BASE}/superadmin/create-superadmin`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  }).then((r) => r.json());
+
+export const listSuperAdmins = () =>
+  fetch(`${API_BASE}/superadmin/superadmins`, { headers: authHeaders() }).then((r) => r.json());
+

@@ -153,4 +153,53 @@ router.delete('/admins/:id', superAdminOnly, async (req, res) => {
   }
 });
 
+// @route  POST /api/superadmin/create-superadmin
+// @desc   Create a new super admin account (only super admins can do this)
+router.post('/create-superadmin', superAdminOnly, async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'Username, email, and password are required.' });
+    }
+
+    const existing = await Admin.findOne({ email });
+    if (existing) {
+      return res.status(409).json({ message: 'An account with this email already exists.' });
+    }
+
+    const admin = new Admin({
+      username,
+      email,
+      password,
+      role: 'super_admin',
+      status: 'approved',
+      purpose: 'Platform super admin',
+      createdBy: req.admin.id, // track who created them
+    });
+    await admin.save();
+
+    res.status(201).json({
+      message: `Super Admin "${username}" created successfully.`,
+      admin: { id: admin._id, username: admin.username, email: admin.email, role: admin.role },
+    });
+  } catch (err) {
+    console.error('[CREATE SUPERADMIN ERROR]', err);
+    res.status(500).json({ message: 'Server error.', error: err.message });
+  }
+});
+
+// @route  GET /api/superadmin/superadmins
+// @desc   List all super admin accounts
+router.get('/superadmins', superAdminOnly, async (req, res) => {
+  try {
+    const superAdmins = await Admin.find({ role: 'super_admin' })
+      .select('-password')
+      .sort({ createdAt: 1 });
+    res.json(superAdmins);
+  } catch (err) {
+    console.error('[LIST SUPERADMINS ERROR]', err);
+    res.status(500).json({ message: 'Server error.', error: err.message });
+  }
+});
+
 export default router;
