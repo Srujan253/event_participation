@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, CheckCircle, LogOut, Trophy, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Users, CheckCircle, LogOut, Trophy, RefreshCw, Download } from 'lucide-react';
+import toast from 'react-hot-toast';
 import BrutalButton from '../components/BrutalButton';
-import { getEventStats, getAttendanceRecords } from '../api';
+import { getEventStats, getAttendanceRecords, exportAttendanceCSV } from '../api';
 
 export default function EventStatsPage() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ export default function EventStatsPage() {
   const [stats, setStats] = useState(null);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [exportLoading, setExportLoading] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -29,6 +31,18 @@ export default function EventStatsPage() {
   useEffect(() => {
     fetchData();
   }, [id]);
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      await exportAttendanceCSV(id, stats?.event?.eventName);
+      toast.success('CSV Download Complete!');
+    } catch {
+      toast.error('Download Failed. Try again.');
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   const formatTime = (dt) => {
     if (!dt) return '—';
@@ -63,13 +77,42 @@ export default function EventStatsPage() {
     <div className="bg-grid min-h-screen" style={{ background: 'var(--bg-primary)', padding: '1.5rem' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
         {/* Back */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <BrutalButton onClick={() => navigate('/')} variant="white">
             <ArrowLeft size={14} /> Back
           </BrutalButton>
-          <BrutalButton onClick={fetchData} variant="black">
-            <RefreshCw size={14} /> Refresh
-          </BrutalButton>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <BrutalButton onClick={fetchData} variant="black">
+              <RefreshCw size={14} /> Refresh
+            </BrutalButton>
+            {/* ── CSV Export Button ── */}
+            <motion.button
+              onClick={handleExport}
+              disabled={exportLoading || records.length === 0}
+              whileTap={{ x: 3, y: 3 }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: exportLoading || records.length === 0 ? '#ccc' : 'var(--brand-yellow)',
+                color: '#000',
+                border: '3px solid #000',
+                borderRadius: '0px',
+                boxShadow: exportLoading || records.length === 0 ? 'none' : '5px 5px 0px 0px #000',
+                padding: '0.55rem 1rem',
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 900,
+                fontSize: '0.78rem',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                cursor: exportLoading || records.length === 0 ? 'not-allowed' : 'pointer',
+                transition: 'box-shadow 0.1s',
+              }}
+            >
+              <Download size={14} strokeWidth={3} />
+              {exportLoading ? 'Exporting...' : 'CSV Export'}
+            </motion.button>
+          </div>
         </div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

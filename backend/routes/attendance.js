@@ -131,4 +131,43 @@ router.get('/event/:eventId', protect, async (req, res) => {
   }
 });
 
+// @route  GET /api/attendance/event/:eventId/export
+// @desc   Export attendance records for an event as a CSV file
+// @access Protected
+router.get('/event/:eventId/export', protect, async (req, res) => {
+  try {
+    const records = await Attendance.find({ eventId: req.params.eventId }).sort({ checkInStartTime: 1 });
+
+    // Map to clean format with English column headers
+    const data = records.map((r) => ({
+      'Name': r.participantName || '',
+      'Affiliation': r.affiliation || '',  // future-proofed — field may not exist yet
+      'Check-in Time': r.checkInStartTime
+        ? new Date(r.checkInStartTime).toLocaleString('en-IN', { hour12: true })
+        : '—',
+      'Check-out Time': r.checkInEndTime
+        ? new Date(r.checkInEndTime).toLocaleString('en-IN', { hour12: true })
+        : '—',
+      // Status in plain English (Japanese headers are commented out below)
+      // 'お名前' | '所属' | 'チェックイン時間' | 'チェックアウト時間' | 'ステータス'
+      'Status': r.isComplete ? 'Complete' : r.checkInStart ? 'Checked In' : 'Absent',
+    }));
+
+    // Convert to CSV using json2csv
+    const { Parser } = await import('json2csv');
+    const parser = new Parser({ fields: ['Name', 'Affiliation', 'Check-in Time', 'Check-out Time', 'Status'] });
+    const csv = parser.parse(data);
+
+    // Prepend UTF-8 BOM so Excel renders characters correctly
+    const csvWithBOM = '\uFEFF' + csv;
+
+    res.header('Content-Type', 'text/csv; charset=utf-8');
+    res.attachment('attendance_list.csv');
+    res.send(csvWithBOM);
+  } catch (err) {
+    console.error('[EXPORT CSV ERROR]', err);
+    res.status(500).json({ message: 'Failed to generate CSV.', error: err.message });
+  }
+});
+
 export default router;

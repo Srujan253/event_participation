@@ -81,6 +81,23 @@ export const getAttendanceRecords = (eventId) =>
     r.json()
   );
 
+export const exportAttendanceCSV = async (eventId, eventName) => {
+  const res = await fetch(`${API_BASE}/attendance/event/${eventId}/export`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) throw new Error('Export failed');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${eventName || 'attendance'}_list.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+
 // ─── SUPER ADMIN ──────────────────────────
 export const getSuperAdminStats = () =>
   fetch(`${API_BASE}/superadmin/stats`, { headers: authHeaders() }).then((r) => r.json());
