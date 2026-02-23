@@ -31,13 +31,13 @@ function StatCard({ label, value, icon: Icon, accent }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       style={{
-        background: accent, border: '3px solid #000', boxShadow: '6px 6px 0 #000',
+        background: accent, border: '3px solid #CBD5E1', boxShadow: '6px 6px 0 #E2E8F0',
         padding: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem',
       }}
     >
-      <Icon size={28} strokeWidth={3} />
-      <div style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1 }}>{value ?? '—'}</div>
-      <div style={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.75 }}>
+      <Icon size={28} strokeWidth={3} color="#475569" />
+      <div style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1, color: '#1E293B' }}>{value ?? '—'}</div>
+      <div style={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '2px', color: '#64748B' }}>
         {label}
       </div>
     </motion.div>
@@ -45,22 +45,22 @@ function StatCard({ label, value, icon: Icon, accent }) {
 }
 
 // ─── Brutal Button Helper ─────────────────────────────────────────────────────
-function Btn({ children, onClick, bg = '#000', color = '#FFE500', disabled, type = 'button' }) {
+function Btn({ children, onClick, bg = '#6366F1', color = '#FFFFFF', disabled, type = 'button' }) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
       style={{
-        background: disabled ? '#ccc' : bg, color: disabled ? '#666' : color,
-        border: '2px solid #000', boxShadow: disabled ? 'none' : '3px 3px 0 #000',
+        background: disabled ? '#F1F5F9' : bg, color: disabled ? '#94A3B8' : color,
+        border: '2px solid #CBD5E1', boxShadow: disabled ? 'none' : '3px 3px 0 #E2E8F0',
         padding: '0.45rem 0.9rem', fontFamily: "'Montserrat', sans-serif",
         fontWeight: 900, fontSize: '0.72rem', textTransform: 'uppercase',
         letterSpacing: '1px', cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'transform 0.1s, box-shadow 0.1s', whiteSpace: 'nowrap',
       }}
-      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = 'translate(-2px,-2px)'; e.currentTarget.style.boxShadow = '5px 5px 0 #000'; } }}
-      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = disabled ? 'none' : '3px 3px 0 #000'; }}
+      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = 'translate(-1px,-1px)'; e.currentTarget.style.boxShadow = '4px 4px 0 #E2E8F0'; } }}
+      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = disabled ? 'none' : '3px 3px 0 #E2E8F0'; }}
     >
       {children}
     </button>
@@ -73,16 +73,17 @@ function BrutalInput({ label, name, type = 'text', value, onChange, required, ex
   const isPass = type === 'password';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-      <label style={{ fontSize: '0.68rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.6 }}>{label}</label>
+      <label style={{ fontSize: '0.68rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', color: '#64748B' }}>{label}</label>
       <div style={{ position: 'relative' }}>
         <input
           type={isPass && show ? 'text' : type}
           name={name} value={value} onChange={onChange} required={required}
           style={{
-            width: '100%', padding: '0.6rem 0.8rem', border: '2px solid #000',
+            width: '100%', padding: '0.6rem 0.8rem', border: '2px solid #CBD5E1',
             borderRadius: 0, fontFamily: "'Montserrat', sans-serif", fontWeight: 700,
             fontSize: '0.85rem', boxSizing: 'border-box', outline: 'none',
-            paddingRight: isPass ? '2.5rem' : '0.8rem',
+            paddingRight: isPass ? '2.5rem' : '0.8rem', background: '#F8FAFC',
+            color: '#1E293B'
           }}
           {...extra}
         />
@@ -170,21 +171,21 @@ export default function SuperAdminDashboard() {
 
   // ─── Render ──────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)', fontFamily: "'Montserrat', sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: "'Montserrat', sans-serif", color: '#1E293B' }}>
 
       {/* ── Sidebar ── */}
       <aside style={{
-        width: '260px', flexShrink: 0, background: '#000', color: '#fff',
+        width: '260px', flexShrink: 0, background: '#F1F5F9', color: '#1E293B',
         display: 'flex', flexDirection: 'column',
-        borderRight: '3px solid #FFE500', position: 'sticky', top: 0, height: '100vh',
+        borderRight: '3px solid #CBD5E1', position: 'sticky', top: 0, height: '100vh',
       }}>
         {/* Brand */}
-        <div style={{ padding: '1.5rem', borderBottom: '2px solid #333' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFE500' }}>
+        <div style={{ padding: '1.5rem', borderBottom: '2px solid #E2E8F0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6366F1' }}>
             <Shield size={22} strokeWidth={3} />
             <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '2px' }}>SUPER ADMIN</span>
           </div>
-          <div style={{ marginTop: '0.4rem', fontSize: '0.73rem', opacity: 0.5, fontWeight: 700, textTransform: 'uppercase' }}>
+          <div style={{ marginTop: '0.4rem', fontSize: '0.73rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
             {adminInfo?.username || 'Admin'}
           </div>
         </div>
@@ -198,9 +199,9 @@ export default function SuperAdminDashboard() {
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: '0.8rem',
                 padding: '0.85rem 1.5rem',
-                background: activeTab === id ? '#FFE500' : 'transparent',
-                color: activeTab === id ? '#000' : '#aaa',
-                border: 'none', borderLeft: activeTab === id ? '4px solid #FFE500' : '4px solid transparent',
+                background: activeTab === id ? '#E2E8F0' : 'transparent',
+                color: activeTab === id ? '#4338CA' : '#64748B',
+                border: 'none', borderLeft: activeTab === id ? '4px solid #6366F1' : '4px solid transparent',
                 cursor: 'pointer', fontFamily: "'Montserrat', sans-serif",
                 fontWeight: 900, fontSize: '0.78rem', textTransform: 'uppercase',
                 letterSpacing: '1px', textAlign: 'left', transition: 'all 0.15s',
@@ -210,9 +211,9 @@ export default function SuperAdminDashboard() {
               {label}
               {id === 'requests' && requests.length > 0 && (
                 <span style={{
-                  marginLeft: 'auto', background: '#ff2222', color: '#fff',
+                  marginLeft: 'auto', background: '#FDA4AF', color: '#881337',
                   borderRadius: '0', fontSize: '0.65rem', fontWeight: 900,
-                  padding: '1px 6px', border: '1.5px solid #fff',
+                  padding: '1px 6px', border: '1.5px solid #F43F5E',
                 }}>
                   {requests.length}
                 </span>
@@ -222,12 +223,12 @@ export default function SuperAdminDashboard() {
         </nav>
 
         {/* Logout */}
-        <div style={{ padding: '1rem 1.5rem', borderTop: '2px solid #333' }}>
+        <div style={{ padding: '1rem 1.5rem', borderTop: '2px solid #E2E8F0' }}>
           <button
             onClick={handleLogout}
             style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: '0.6rem',
-              background: 'transparent', color: '#ff4444', border: '2px solid #ff4444',
+              background: 'transparent', color: '#F43F5E', border: '2px solid #F43F5E',
               padding: '0.7rem 1rem', cursor: 'pointer',
               fontFamily: "'Montserrat', sans-serif", fontWeight: 900, fontSize: '0.78rem', textTransform: 'uppercase',
             }}
@@ -247,9 +248,9 @@ export default function SuperAdminDashboard() {
               <h1 style={{ fontWeight: 900, fontSize: '1.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Platform Stats</h1>
               <p style={{ opacity: 0.5, fontWeight: 700, fontSize: '0.85rem', marginBottom: '2rem' }}>High-level overview of the platform.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                <StatCard label="Active Admins"    value={stats?.totalAdmins}     icon={Users}        accent="#FFE500" />
-                <StatCard label="Total Events"     value={stats?.totalEvents}     icon={CalendarDays} accent="#B8F5B0" />
-                <StatCard label="Pending Requests" value={stats?.pendingRequests} icon={Hourglass}    accent="#FFB3B3" />
+                <StatCard label="Active Admins"    value={stats?.totalAdmins}     icon={Users}        accent="#E0E7FF" />
+                <StatCard label="Total Events"     value={stats?.totalEvents}     icon={CalendarDays} accent="#ECFDF5" />
+                <StatCard label="Pending Requests" value={stats?.pendingRequests} icon={Hourglass}    accent="#FFF1F2" />
               </div>
               <div style={{ marginTop: '2rem' }}>
                 <Btn onClick={() => { fetchStats(); toast.success('Stats refreshed'); }} bg="#000">
@@ -272,9 +273,9 @@ export default function SuperAdminDashboard() {
                 {requests.length} request{requests.length !== 1 ? 's' : ''} awaiting approval.
               </p>
               {requests.length === 0 ? (
-                <div style={{ border: '3px solid #000', boxShadow: '5px 5px 0 #000', padding: '3rem', textAlign: 'center', background: '#fff', maxWidth: '400px' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✅</div>
-                  <div style={{ fontWeight: 900, textTransform: 'uppercase' }}>All clear — no pending requests</div>
+                <div style={{ border: '3px solid #E2E8F0', boxShadow: '5px 5px 0 #F1F5F9', padding: '3rem', textAlign: 'center', background: '#fff', maxWidth: '400px' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✨</div>
+                  <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#64748B' }}>All clear — no pending requests</div>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
@@ -282,10 +283,10 @@ export default function SuperAdminDashboard() {
                     <motion.div
                       key={req._id}
                       initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                      style={{ background: '#fff', border: '3px solid #000', boxShadow: '5px 5px 0 #000', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+                      style={{ background: '#fff', border: '3px solid #E2E8F0', boxShadow: '5px 5px 0 #F1F5F9', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                        <div style={{ width: '36px', height: '36px', background: '#FFE500', border: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem' }}>
+                        <div style={{ width: '36px', height: '36px', background: '#EEF2FF', border: '2px solid #E0E7FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem', color: '#6366F1' }}>
                           {req.username[0].toUpperCase()}
                         </div>
                         <div>
@@ -293,16 +294,16 @@ export default function SuperAdminDashboard() {
                           <div style={{ fontSize: '0.75rem', opacity: 0.6, fontWeight: 700 }}>{req.email}</div>
                         </div>
                       </div>
-                      <div style={{ background: '#f5f5f5', border: '2px solid #000', padding: '0.6rem 0.8rem' }}>
-                        <div style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.2rem' }}>Purpose</div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 700, lineHeight: 1.4 }}>{req.purpose || '—'}</div>
+                      <div style={{ background: '#F8FAFC', border: '2px solid #E2E8F0', padding: '0.6rem 0.8rem' }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: '#64748B', marginBottom: '0.2rem' }}>Purpose</div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 700, lineHeight: 1.4, color: '#1E293B' }}>{req.purpose || '—'}</div>
                       </div>
-                      <div style={{ fontSize: '0.7rem', opacity: 0.5, fontWeight: 700 }}>Applied: {new Date(req.createdAt).toLocaleDateString()}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Applied: {new Date(req.createdAt).toLocaleDateString()}</div>
                       <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.25rem' }}>
-                        <Btn bg="#22c55e" color="#fff" onClick={() => handleRequest(req._id, 'approved')} disabled={loadingAction === req._id + 'approved'}>
+                        <Btn bg="#10B981" color="#fff" onClick={() => handleRequest(req._id, 'approved')} disabled={loadingAction === req._id + 'approved'}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><CheckCircle size={13} /> Approve</span>
                         </Btn>
-                        <Btn bg="#ef4444" color="#fff" onClick={() => handleRequest(req._id, 'rejected')} disabled={loadingAction === req._id + 'rejected'}>
+                        <Btn bg="#F43F5E" color="#fff" onClick={() => handleRequest(req._id, 'rejected')} disabled={loadingAction === req._id + 'rejected'}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><XCircle size={13} /> Reject</span>
                         </Btn>
                       </div>
@@ -321,15 +322,15 @@ export default function SuperAdminDashboard() {
                 {admins.length} approved admin{admins.length !== 1 ? 's' : ''} on the platform.
               </p>
               {admins.length === 0 ? (
-                <div style={{ border: '3px solid #000', boxShadow: '5px 5px 0 #000', padding: '3rem', textAlign: 'center', background: '#fff', maxWidth: '400px' }}>
+                <div style={{ border: '3px solid #E2E8F0', boxShadow: '5px 5px 0 #F1F5F9', padding: '3rem', textAlign: 'center', background: '#fff', maxWidth: '400px' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🚫</div>
-                  <div style={{ fontWeight: 900, textTransform: 'uppercase' }}>No approved admins yet</div>
+                  <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#64748B' }}>No approved admins yet</div>
                 </div>
               ) : (
-                <div style={{ background: '#fff', border: '3px solid #000', boxShadow: '6px 6px 0 #000', overflowX: 'auto' }}>
+                <div style={{ background: '#fff', border: '3px solid #E2E8F0', boxShadow: '6px 6px 0 #F1F5F9', overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ background: '#000', color: '#FFE500' }}>
+                      <tr style={{ background: '#EEF2FF', color: '#4338CA' }}>
                         {['Username', 'Email', 'Events Created', 'Joined', 'Actions'].map((h) => (
                           <th key={h} style={{ padding: '0.9rem 1rem', textAlign: 'left', fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.5px', whiteSpace: 'nowrap' }}>{h}</th>
                         ))}
@@ -337,15 +338,15 @@ export default function SuperAdminDashboard() {
                     </thead>
                     <tbody>
                       {admins.map((admin, i) => (
-                        <tr key={admin._id} style={{ borderBottom: '2px solid #000', background: i % 2 === 0 ? '#fff' : '#FAFAF5' }}>
-                          <td style={{ padding: '0.85rem 1rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.85rem' }}>{admin.username}</td>
-                          <td style={{ padding: '0.85rem 1rem', fontSize: '0.82rem', fontWeight: 600, opacity: 0.7 }}>{admin.email}</td>
+                        <tr key={admin._id} style={{ borderBottom: '2px solid #F1F5F9', background: i % 2 === 0 ? '#fff' : '#F8FAFC' }}>
+                          <td style={{ padding: '0.85rem 1rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.85rem', color: '#1E293B' }}>{admin.username}</td>
+                          <td style={{ padding: '0.85rem 1rem', fontSize: '0.82rem', fontWeight: 600, color: '#475569' }}>{admin.email}</td>
                           <td style={{ padding: '0.85rem 1rem' }}>
-                            <span style={{ background: '#FFE500', border: '2px solid #000', padding: '2px 10px', fontWeight: 900, fontSize: '0.85rem' }}>{admin.totalEventsCreated}</span>
+                            <span style={{ background: '#EEF2FF', border: '2px solid #E0E7FF', padding: '2px 10px', fontWeight: 900, fontSize: '0.85rem', color: '#4338CA' }}>{admin.totalEventsCreated}</span>
                           </td>
-                          <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: 700, opacity: 0.5 }}>{new Date(admin.createdAt).toLocaleDateString()}</td>
+                          <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8' }}>{new Date(admin.createdAt).toLocaleDateString()}</td>
                           <td style={{ padding: '0.85rem 1rem' }}>
-                            <Btn bg="#ef4444" color="#fff" onClick={() => handleDelete(admin._id, admin.username)} disabled={loadingAction === 'del' + admin._id}>
+                            <Btn bg="#F43F5E" color="#fff" onClick={() => handleDelete(admin._id, admin.username)} disabled={loadingAction === 'del' + admin._id}>
                               <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Trash2 size={12} /> Delete Admin</span>
                             </Btn>
                           </td>
@@ -369,9 +370,9 @@ export default function SuperAdminDashboard() {
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px,400px) 1fr', gap: '2rem', alignItems: 'start' }}>
 
                 {/* ── Create Form ── */}
-                <div style={{ background: '#fff', border: '3px solid #000', boxShadow: '6px 6px 0 #000' }}>
+                <div style={{ background: '#fff', border: '3px solid #E2E8F0', boxShadow: '6px 6px 0 #F1F5F9' }}>
                   {/* Form Header */}
-                  <div style={{ background: '#000', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#FFE500' }}>
+                  <div style={{ background: '#EEF2FF', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#4338CA' }}>
                     <UserPlus size={16} strokeWidth={3} />
                     <span style={{ fontWeight: 900, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                       Create Super Admin
@@ -410,8 +411,8 @@ export default function SuperAdminDashboard() {
                   </div>
 
                   {superAdmins.length === 0 ? (
-                    <div style={{ border: '3px solid #000', padding: '2rem', textAlign: 'center', background: '#fff', boxShadow: '4px 4px 0 #000' }}>
-                      <div style={{ fontWeight: 900, textTransform: 'uppercase', opacity: 0.5 }}>No super admins found</div>
+                    <div style={{ border: '3px solid #E2E8F0', padding: '2rem', textAlign: 'center', background: '#fff', boxShadow: '4px 4px 0 #F1F5F9' }}>
+                      <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#94A3B8' }}>No super admins found</div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -420,29 +421,29 @@ export default function SuperAdminDashboard() {
                           key={sa._id}
                           initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                           style={{
-                            background: '#fff', border: '2px solid #000', boxShadow: '4px 4px 0 #000',
+                            background: '#fff', border: '2px solid #E2E8F0', boxShadow: '4px 4px 0 #F1F5F9',
                             padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem',
                           }}
                         >
                           {/* Avatar */}
                           <div style={{
                             width: '40px', height: '40px', flexShrink: 0,
-                            background: '#000', color: '#FFE500',
+                            background: '#F1F5F9', color: '#6366F1',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 900, fontSize: '1.1rem', border: '2px solid #000',
+                            fontWeight: 900, fontSize: '1.1rem', border: '2px solid #E2E8F0',
                           }}>
                             {sa.username[0].toUpperCase()}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1E293B' }}>
                               {sa.username}
                             </div>
-                            <div style={{ fontSize: '0.75rem', opacity: 0.6, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {sa.email}
                             </div>
                           </div>
                           <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <span style={{ background: '#FFE500', border: '2px solid #000', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                            <span style={{ background: '#EEF2FF', border: '2px solid #E0E7FF', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', whiteSpace: 'nowrap', color: '#4338CA' }}>
                               Super Admin
                             </span>
                           </div>
