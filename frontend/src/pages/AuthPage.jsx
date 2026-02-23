@@ -1,246 +1,264 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Lock, Mail, User, Eye, EyeOff, FileText, Clock, XCircle } from 'lucide-react';
+import { Zap, Lock, Mail, User, Eye, EyeOff, FileText, Clock, XCircle, ArrowRight, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
-import BrutalButton from '../components/BrutalButton';
 import { loginAdmin, registerAdmin } from '../api';
 
 export default function AuthPage() {
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ username: '', email: '', password: '', purpose: '' });
-  const [error, setError] = useState('');
-  const [errorStatus, setErrorStatus] = useState(null); // 'pending' | 'rejected'
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [registered, setRegistered] = useState(false); // show pending message after register
+  const [errorStatus, setErrorStatus] = useState(null); // 'pending' | 'rejected'
+  const [registered, setRegistered] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError('');
     setErrorStatus(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     setErrorStatus(null);
 
     try {
-      if (mode === 'login') {
+      if (isLogin) {
         const res = await loginAdmin({ email: form.email, password: form.password });
         if (res.token) {
           localStorage.setItem('attendqr_token', res.token);
           localStorage.setItem('attendqr_admin', JSON.stringify(res.admin));
-          toast.success(res.admin.role === 'super_admin' ? 'SUPER ADMIN LOGIN' : 'LOGIN SUCCESSFUL');
-          if (res.admin.role === 'super_admin') {
-            navigate('/superadmin');
-          } else {
-            navigate('/');
-          }
+          toast.success(res.admin.role === 'super_admin' ? 'SUPER ADMIN LOGIN' : 'LOGIN SUCCESSFUL', {
+            style: { border: '3px solid #000', borderRadius: '0', fontWeight: 900, textTransform: 'uppercase' }
+          });
+          navigate(res.admin.role === 'super_admin' ? '/superadmin' : '/');
         }
       } else {
-        // Register
-        await registerAdmin({
-          username: form.username,
-          email: form.email,
-          password: form.password,
-          purpose: form.purpose,
-        });
+        await registerAdmin(form);
         setRegistered(true);
-        toast.success('Request submitted! Awaiting approval.');
+        toast.success('REQUEST SUBMITTED! AWAITING APPROVAL', {
+          style: { border: '3px solid #000', borderRadius: '0', fontWeight: 900, textTransform: 'uppercase' }
+        });
       }
     } catch (err) {
       if (err.status === 'pending') setErrorStatus('pending');
       else if (err.status === 'rejected') setErrorStatus('rejected');
-      else setError(err.message || 'Something went wrong.');
+      else {
+        toast.error(err.message || 'AUTHENTICATION FAILED', {
+          style: { border: '3px solid #000', borderRadius: '0', fontWeight: 900, textTransform: 'uppercase' }
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // ─── Pending Approval screen ──────────────
   if (registered) {
     return (
-      <div
-        className="bg-grid min-h-screen flex items-center justify-center p-4"
-        style={{ background: 'var(--bg-primary)' }}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          style={{ width: '100%', maxWidth: '420px' }}
+      <div className="min-h-screen flex items-center justify-center bg-[#F7D61D] p-4">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }} 
+          animate={{ scale: 1, opacity: 1 }}
+          style={{
+            background: '#fff', border: '3px solid #000', boxShadow: '12px 12px 0px #000',
+            padding: '3rem', maxWidth: '500px', width: '100%', textAlign: 'center'
+          }}
         >
-          <div className="brutal-card" style={{ background: '#fff', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-            <h2 style={{ fontWeight: 900, fontSize: '1.4rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
-              Request Submitted!
-            </h2>
-            <p style={{ fontWeight: 600, opacity: 0.7, marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-              Your account is pending approval by the Super Admin. You will be able to log in once approved.
-            </p>
-            <BrutalButton variant="yellow" fullWidth onClick={() => { setRegistered(false); setMode('login'); }}>
-              → Back to Login
-            </BrutalButton>
-          </div>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⏳</div>
+          <h1 style={{ fontWeight: 900, fontSize: '2rem', marginBottom: '1rem', textTransform: 'uppercase' }}>Awaiting Approval</h1>
+          <p style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '2rem', opacity: 0.8 }}>
+            Your request has been sent to the Super Admin. Please check back later.
+          </p>
+          <motion.button
+            whileTap={{ x: 2, y: 2, boxShadow: '0px 0px 0px #000' }}
+            onClick={() => { setRegistered(false); setIsLogin(true); }}
+            style={{
+              background: '#000', color: '#fff', border: '2px solid #000',
+              boxShadow: '4px 4px 0px #000', padding: '1rem 2rem', fontWeight: 900,
+              textTransform: 'uppercase', letterSpacing: '2px', cursor: 'pointer'
+            }}
+          >
+            Back to Login
+          </motion.button>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div
-      className="bg-grid min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'var(--bg-primary)' }}
-    >
-      {/* Decorative blobs */}
-      <div
+    <div className="min-h-screen flex items-center justify-center bg-white p-4 font-['Montserrat',sans-serif]">
+      {/* Container */}
+      <div 
         style={{
-          position: 'fixed', top: '-80px', right: '-80px', width: '300px', height: '300px',
-          background: 'var(--brand-yellow)', border: 'var(--brutal-border)', zIndex: 0, transform: 'rotate(15deg)',
+          display: 'flex', width: '100%', maxWidth: '900px', background: '#fff',
+          border: '3px solid #000', boxShadow: '12px 12px 0px #000',
+          flexDirection: isLogin ? 'row' : 'row-reverse',
+          transition: 'flex-direction 0.5s ease'
         }}
-      />
-      <div
-        style={{
-          position: 'fixed', bottom: '-60px', left: '-60px', width: '200px', height: '200px',
-          background: 'var(--brand-purple)', border: 'var(--brutal-border)', zIndex: 0, transform: 'rotate(-10deg)',
-        }}
-      />
-
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px' }}
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: '#000', color: 'var(--brand-yellow)', padding: '0.6rem 1.2rem',
-              border: 'var(--brutal-border)', boxShadow: 'var(--brutal-shadow)', marginBottom: '1rem',
-            }}
-          >
-            <Zap size={20} fill="var(--brand-yellow)" />
-            <span style={{ fontWeight: 900, fontSize: '1.1rem', letterSpacing: '2px' }}>ATTENDQR</span>
-          </div>
-          <p style={{ fontWeight: 700, fontSize: '0.85rem', opacity: 0.6, textTransform: 'uppercase' }}>
-            Admin Portal
-          </p>
-        </div>
-
-        {/* Card */}
-        <div className="brutal-card" style={{ background: '#fff' }}>
-          {/* Tabs */}
-          <div style={{ display: 'flex', marginBottom: '1.5rem', border: 'var(--brutal-border)' }}>
-            {['login', 'register'].map((m) => (
-              <button
-                key={m}
-                onClick={() => { setMode(m); setError(''); setErrorStatus(null); }}
-                style={{
-                  flex: 1, padding: '0.75rem',
-                  background: mode === m ? '#000' : 'transparent',
-                  color: mode === m ? 'var(--brand-yellow)' : '#000',
-                  border: 'none', borderRight: m === 'login' ? 'var(--brutal-border)' : 'none',
-                  fontFamily: "'Montserrat', sans-serif", fontWeight: 900, fontSize: '0.8rem',
-                  textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer',
-                }}
-              >
-                {m === 'login' ? '→ Login' : '+ Register'}
-              </button>
-            ))}
+        {/* Half A: The Form */}
+        <div style={{ flex: 1, padding: '3rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
+            <Zap size={24} fill="#000" />
+            <span style={{ fontWeight: 900, fontSize: '1.2rem', letterSpacing: '2px' }}>ATTENDQR</span>
           </div>
 
           <AnimatePresence mode="wait">
-            <motion.form
-              key={mode}
-              initial={{ opacity: 0, x: mode === 'login' ? -20 : 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: mode === 'login' ? 20 : -20 }}
-              transition={{ duration: 0.2 }}
-              onSubmit={handleSubmit}
-              style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            <motion.div
+              key={isLogin ? 'login' : 'register'}
+              initial={{ x: isLogin ? -20 : 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: isLogin ? 20 : -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              {mode === 'register' && (
-                <div style={{ position: 'relative' }}>
-                  <User size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
-                  <input
-                    className="brutal-input" type="text" name="username"
-                    placeholder="USERNAME" value={form.username}
-                    onChange={handleChange} required style={{ paddingLeft: '2.2rem' }}
-                  />
+              <h2 style={{ fontWeight: 900, fontSize: '2rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+                {isLogin ? 'Welcome Back' : 'Create Admin'}
+              </h2>
+              <p style={{ fontWeight: 700, opacity: 0.5, marginBottom: '2rem', textTransform: 'uppercase', fontSize: '0.8rem' }}>
+                {isLogin ? 'Sign in to manage your events' : 'Submit a request to join as an event admin'}
+              </p>
+
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                {!isLogin && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Full Name</label>
+                    <div style={{ position: 'relative' }}>
+                      <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="text" name="username" placeholder="NAME SURNAME" required
+                        value={form.username} onChange={handleChange}
+                        style={{
+                          width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem', border: '2px solid #000',
+                          borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff'
+                        }}
+                        onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
+                        onBlur={(e) => e.target.style.boxShadow = 'none'}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Email Address</label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input
+                      type="email" name="email" placeholder="EMAIL@EXAMPLE.COM" required
+                      value={form.email} onChange={handleChange}
+                      style={{
+                        width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem', border: '2px solid #000',
+                        borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff'
+                      }}
+                      onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
+                      onBlur={(e) => e.target.style.boxShadow = 'none'}
+                    />
+                  </div>
                 </div>
-              )}
 
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
-                <input
-                  className="brutal-input" type="email" name="email"
-                  placeholder="EMAIL ADDRESS" value={form.email}
-                  onChange={handleChange} required style={{ paddingLeft: '2.2rem' }}
-                />
-              </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Password</label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input
+                      type={showPass ? 'text' : 'password'} name="password" placeholder="••••••••" required
+                      value={form.password} onChange={handleChange}
+                      style={{
+                        width: '100%', padding: '0.8rem 3rem 0.8rem 2.8rem', border: '2px solid #000',
+                        borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff'
+                      }}
+                      onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
+                      onBlur={(e) => e.target.style.boxShadow = 'none'}
+                    />
+                    <button
+                      type="button" onClick={() => setShowPass(!showPass)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
 
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
-                <input
-                  className="brutal-input" type={showPass ? 'text' : 'password'}
-                  name="password" placeholder="PASSWORD" value={form.password}
-                  onChange={handleChange} required style={{ paddingLeft: '2.2rem', paddingRight: '2.8rem' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, opacity: 0.5 }}
+                {!isLogin && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Purpose of Joining</label>
+                    <div style={{ position: 'relative' }}>
+                      <FileText size={18} style={{ position: 'absolute', left: '12px', top: '14px' }} />
+                      <textarea
+                        name="purpose" placeholder="GIVE A BRIEF REASON FOR ACCESS..." required
+                        value={form.purpose} onChange={handleChange} rows={3}
+                        style={{
+                          width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem', border: '2px solid #000',
+                          borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff',
+                          resize: 'none'
+                        }}
+                        onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
+                        onBlur={(e) => e.target.style.boxShadow = 'none'}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {errorStatus === 'pending' && (
+                  <div style={{ background: '#F7D61D', border: '2px solid #000', padding: '0.8rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem' }}>
+                    <Clock size={16} /> ACCOUNT PENDING APPROVAL
+                  </div>
+                )}
+                {errorStatus === 'rejected' && (
+                  <div style={{ background: '#ff4444', color: '#fff', border: '2px solid #000', padding: '0.8rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem' }}>
+                    <XCircle size={16} /> REQUEST REJECTED BY SUPER ADMIN
+                  </div>
+                )}
+
+                <motion.button
+                  whileTap={{ x: 2, y: 2, boxShadow: '0px 0px 0px #000' }}
+                  type="submit" disabled={loading}
+                  style={{
+                    marginTop: '1rem', background: '#000', color: '#fff', border: '2px solid #000',
+                    boxShadow: '4px 4px 0px #000', padding: '1rem', fontWeight: 900,
+                    textTransform: 'uppercase', letterSpacing: '2px', cursor: 'pointer'
+                  }}
                 >
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-
-              {/* Purpose textarea — register only */}
-              {mode === 'register' && (
-                <div style={{ position: 'relative' }}>
-                  <FileText size={16} style={{ position: 'absolute', left: '12px', top: '14px', opacity: 0.5 }} />
-                  <textarea
-                    className="brutal-input"
-                    name="purpose"
-                    placeholder="PURPOSE OF JOINING (e.g. managing college events)"
-                    value={form.purpose}
-                    onChange={handleChange}
-                    required
-                    rows={3}
-                    style={{ paddingLeft: '2.2rem', resize: 'vertical', lineHeight: 1.5 }}
-                  />
-                </div>
-              )}
-
-              {/* Status-specific error banners */}
-              {errorStatus === 'pending' && (
-                <div style={{ background: '#FFA500', color: '#000', padding: '0.75rem 1rem', border: 'var(--brutal-border)', fontSize: '0.8rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Clock size={16} /> YOUR ACCOUNT IS PENDING APPROVAL
-                </div>
-              )}
-              {errorStatus === 'rejected' && (
-                <div style={{ background: 'var(--accent-red)', color: '#fff', padding: '0.75rem 1rem', border: 'var(--brutal-border)', fontSize: '0.8rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <XCircle size={16} /> ACCOUNT REJECTED — CONTACT SUPER ADMIN
-                </div>
-              )}
-              {error && (
-                <div style={{ background: 'var(--accent-red)', color: '#fff', padding: '0.6rem 1rem', border: 'var(--brutal-border)', fontSize: '0.8rem', fontWeight: 700 }}>
-                  ⚠ {error}
-                </div>
-              )}
-
-              <BrutalButton type="submit" variant="yellow" disabled={loading} fullWidth>
-                {loading ? 'Loading...' : mode === 'login' ? '→ Login' : '+ Submit Request'}
-              </BrutalButton>
-            </motion.form>
+                  {loading ? 'Processing...' : isLogin ? 'Sign In →' : 'Submit Request +'}
+                </motion.button>
+              </form>
+            </motion.div>
           </AnimatePresence>
         </div>
-      </motion.div>
+
+        {/* Half B: Accent Panel */}
+        <div 
+          style={{
+            flex: 0.8, background: '#B642FF', borderLeft: isLogin ? '3px solid #000' : 'none',
+            borderRight: isLogin ? 'none' : '3px solid #000', display: 'flex',
+            flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: '3rem', textAlign: 'center', color: '#000'
+          }}
+        >
+          <Sparkles size={48} fill="#000" style={{ marginBottom: '1.5rem' }} />
+          <h1 style={{ fontWeight: 900, fontSize: '2.5rem', lineHeight: 1, textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+            {isLogin ? "Hello, Friend!" : "Join the Squad"}
+          </h1>
+          <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '2.5rem', lineHeight: 1.4 }}>
+            {isLogin 
+              ? "New here? Sign up and start managing your events with style."
+              : "Already part of us? Sign in to continue your journey."
+            }
+          </p>
+          <motion.button
+            whileTap={{ x: 2, y: 2, boxShadow: '0px 0px 0px #000' }}
+            onClick={() => setIsLogin(!isLogin)}
+            style={{
+              background: 'transparent', color: '#000', border: '2px solid #000',
+              boxShadow: '4px 4px 0px #000', padding: '0.8rem 2rem', fontWeight: 900,
+              textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer'
+            }}
+          >
+            {isLogin ? 'Go to Register' : 'Go to Login'}
+          </motion.button>
+        </div>
+      </div>
     </div>
   );
 }

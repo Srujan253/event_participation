@@ -17,7 +17,9 @@
 /* ─────────────────────────────────────────
    GLOBAL RESET & BASE
 ───────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -42,7 +44,12 @@ body {
 /* ─────────────────────────────────────────
    TYPOGRAPHY
 ───────────────────────────────────────── */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Montserrat', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
@@ -126,10 +133,12 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
   border-left: 2px solid #000;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--brand-purple);
   border: 2px solid #000;
@@ -140,8 +149,8 @@ h1, h2, h3, h4, h5, h6 {
 ───────────────────────────────────────── */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -157,6 +166,7 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
