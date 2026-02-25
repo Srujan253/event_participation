@@ -11,7 +11,12 @@ import superAdminRoutes from './routes/superadmin.js';
 const app = express();
 
 // Middleware
-app.use(cors());
+// Middleware
+app.use(cors({
+  origin: '*', // For development flexibility, but you can restrict this to your specific frontend URL in the Render dashboard
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Routes
