@@ -11,9 +11,20 @@ import superAdminRoutes from './routes/superadmin.js';
 const app = express();
 
 // Middleware
-// Middleware
 app.use(cors({
-  origin: '*', // For development flexibility, but you can restrict this to your specific frontend URL in the Render dashboard
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow all .onrender.com subdomains and localhost
+    if (origin.endsWith('.onrender.com') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      callback(null, true);
+    } else {
+      // In production, you can replace '*' with your specific domain, 
+      // but for now '*' is the safest way to ensure it works on Render.
+      callback(null, true); 
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
