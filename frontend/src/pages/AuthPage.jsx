@@ -91,15 +91,13 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-white p-4 font-['Montserrat',sans-serif]">
       {/* Container */}
       <div 
+        className="auth-container"
         style={{
-          display: 'flex', width: '100%', maxWidth: '900px', background: '#fff',
-          border: '3px solid #000', boxShadow: '12px 12px 0px #000',
-          flexDirection: isLogin ? 'row' : 'row-reverse',
-          transition: 'flex-direction 0.5s ease'
+          flexDirection: isLogin ? 'row' : 'row-reverse'
         }}
       >
         {/* Half A: The Form */}
-        <div style={{ flex: 1, padding: '3rem' }}>
+        <div className="auth-form-panel">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
             <Zap size={24} fill="#000" />
             <span style={{ fontWeight: 900, fontSize: '1.2rem', letterSpacing: '2px' }}>ATTENDQR</span>
@@ -129,12 +127,8 @@ export default function AuthPage() {
                       <input
                         type="text" name="username" placeholder="NAME SURNAME" required
                         value={form.username} onChange={handleChange}
-                        style={{
-                          width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem', border: '2px solid #000',
-                          borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff'
-                        }}
-                        onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
-                        onBlur={(e) => e.target.style.boxShadow = 'none'}
+                        className="brutal-input"
+                        style={{ paddingLeft: '2.8rem' }}
                       />
                     </div>
                   </div>
@@ -147,12 +141,8 @@ export default function AuthPage() {
                     <input
                       type="email" name="email" placeholder="EMAIL@EXAMPLE.COM" required
                       value={form.email} onChange={handleChange}
-                      style={{
-                        width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem', border: '2px solid #000',
-                        borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff'
-                      }}
-                      onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
-                      onBlur={(e) => e.target.style.boxShadow = 'none'}
+                      className="brutal-input"
+                      style={{ paddingLeft: '2.8rem' }}
                     />
                   </div>
                 </div>
@@ -164,12 +154,8 @@ export default function AuthPage() {
                     <input
                       type={showPass ? 'text' : 'password'} name="password" placeholder="••••••••" required
                       value={form.password} onChange={handleChange}
-                      style={{
-                        width: '100%', padding: '0.8rem 3rem 0.8rem 2.8rem', border: '2px solid #000',
-                        borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff'
-                      }}
-                      onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
-                      onBlur={(e) => e.target.style.boxShadow = 'none'}
+                      className="brutal-input"
+                      style={{ paddingLeft: '2.8rem', paddingRight: '3rem' }}
                     />
                     <button
                       type="button" onClick={() => setShowPass(!showPass)}
@@ -188,13 +174,8 @@ export default function AuthPage() {
                       <textarea
                         name="purpose" placeholder="GIVE A BRIEF REASON FOR ACCESS..." required
                         value={form.purpose} onChange={handleChange} rows={3}
-                        style={{
-                          width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem', border: '2px solid #000',
-                          borderRadius: '0', fontWeight: 700, outline: 'none', background: '#fff',
-                          resize: 'none'
-                        }}
-                        onFocus={(e) => e.target.style.boxShadow = '4px 4px 0px #000'}
-                        onBlur={(e) => e.target.style.boxShadow = 'none'}
+                        className="brutal-input"
+                        style={{ paddingLeft: '2.8rem', resize: 'none' }}
                       />
                     </div>
                   </div>
@@ -229,18 +210,17 @@ export default function AuthPage() {
 
         {/* Half B: Accent Panel */}
         <div 
+          className="auth-accent-panel"
           style={{
-            flex: 0.8, background: '#B642FF', borderLeft: isLogin ? '3px solid #000' : 'none',
-            borderRight: isLogin ? 'none' : '3px solid #000', display: 'flex',
-            flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            padding: '3rem', textAlign: 'center', color: '#000'
+            borderLeft: isLogin ? '3px solid #000' : 'none',
+            borderRight: isLogin ? 'none' : '3px solid #000'
           }}
         >
-          <Sparkles size={48} fill="#000" style={{ marginBottom: '1.5rem' }} />
-          <h1 style={{ fontWeight: 900, fontSize: '2.5rem', lineHeight: 1, textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+          <Sparkles size={48} className="mb-4" fill="#000" />
+          <h1 className="auth-accent-h1" style={{ fontWeight: 900, fontSize: '2.5rem', lineHeight: 1, textTransform: 'uppercase', marginBottom: '1.5rem' }}>
             {isLogin ? "Hello, Friend!" : "Join the Squad"}
           </h1>
-          <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '2.5rem', lineHeight: 1.4 }}>
+          <p className="auth-accent-p" style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '2.5rem', lineHeight: 1.4 }}>
             {isLogin 
               ? "New here? Sign up and start managing your events with style."
               : "Already part of us? Sign in to continue your journey."

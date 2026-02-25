@@ -172,3 +172,67 @@ h6 {
     transform: translateY(0);
   }
 }
+
+/* ─────────────────────────────────────────
+   AUTH PAGE RESPONSIVE CLASSES
+   ───────────────────────────────────────── */
+.auth-container {
+  display: flex;
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border: 3px solid #000;
+  box-shadow: 12px 12px 0px #000;
+  transition: all 0.5s ease;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column !important;
+    max-width: 450px;
+    box-shadow: 8px 8px 0px #000;
+  }
+}
+
+.auth-form-panel {
+  flex: 1;
+  padding: 3rem;
+  background: #fff;
+}
+
+@media (max-width: 768px) {
+  .auth-form-panel {
+    padding: 2rem 1.5rem;
+  }
+}
+
+.auth-accent-panel {
+  flex: 0.8;
+  background: var(--brand-purple);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  color: #000;
+  transition: all 0.5s ease;
+}
+
+@media (max-width: 768px) {
+  .auth-accent-panel {
+    padding: 2rem 1.5rem;
+    order: -1;
+    /* Move accent panel to top on mobile */
+  }
+
+  .auth-accent-h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .auth-accent-p {
+    font-size: 0.9rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+}
