@@ -1,4 +1,8 @@
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+let envApiUrl = import.meta.env.VITE_API_URL || '';
+if (envApiUrl && !envApiUrl.endsWith('/api') && !envApiUrl.endsWith('/api/')) {
+    envApiUrl = envApiUrl.endsWith('/') ? `${envApiUrl}api` : `${envApiUrl}/api`;
+}
+const API_BASE = envApiUrl || '/api';
 
 // Helper: get stored token
 const getToken = () => localStorage.getItem('attendqr_token');

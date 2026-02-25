@@ -23,6 +23,11 @@ app.use('/api/superadmin', superAdminRoutes);
 // Health check
 app.get('/', (req, res) => res.json({ message: 'Attendance System API is running' }));
 
+// 404 Handler (Generic)
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+});
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
