@@ -24,6 +24,9 @@ export default function EventStatsPage() {
       ]);
       setStats(statsData);
       setRecords(Array.isArray(recordsData) ? recordsData : []);
+      toast.success('DATA SYNCHRONIZED');
+    } catch {
+      toast.error('SYNC FAILED');
     } finally {
       setLoading(false);
     }
@@ -186,9 +189,29 @@ export default function EventStatsPage() {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <motion.tbody 
+                    className="divide-y divide-gray-50"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      show: {
+                        opacity: 1,
+                        transition: {
+                          staggerChildren: 0.03
+                        }
+                      }
+                    }}
+                    initial="hidden"
+                    animate="show"
+                  >
                     {records.map((r, i) => (
-                      <tr key={r._id} className="hover:bg-blue-50/30 transition-colors duration-200">
+                      <motion.tr 
+                        key={r._id} 
+                        variants={{
+                          hidden: { opacity: 0, x: -10 },
+                          show: { opacity: 1, x: 0 }
+                        }}
+                        className="hover:bg-blue-50/30 transition-colors duration-200"
+                      >
                         <td className="px-6 py-4 text-[11px] font-bold text-gray-400">{(i + 1).toString().padStart(2, '0')}</td>
                         <td className="px-6 py-4">
                           <div className="font-extrabold text-sm text-gray-900 tracking-tight">{r.participantName}</div>
@@ -212,9 +235,9 @@ export default function EventStatsPage() {
                             {r.isComplete ? 'Complete' : r.checkInStart ? 'Active' : 'Absent'}
                           </span>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
-                  </tbody>
+                  </motion.tbody>
                 </table>
               </div>
             )}

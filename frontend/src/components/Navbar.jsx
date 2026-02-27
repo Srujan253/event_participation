@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogOut, User, Zap, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import Magnetic from './Magnetic';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -57,14 +58,17 @@ const Navbar = () => {
             </div>
             <span className="text-sm font-semibold">{admin.username || 'Admin'}</span>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleLogout}
-            className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-          >
-            Logout
-          </motion.button>
+          <Magnetic>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              onClick={handleLogout}
+              className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm cursor-pointer"
+            >
+              Logout
+            </motion.button>
+          </Magnetic>
         </div>
       </div>
 

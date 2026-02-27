@@ -16,6 +16,7 @@ import {
   listSuperAdmins,
 } from '../api';
 import LuminaButton from '../components/LuminaButton';
+import Magnetic from '../components/Magnetic';
 
 // ─── Sidebar Nav Items ────────────────────────────────────────────────────────
 const NAV = [
@@ -162,10 +163,27 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-4 px-3 overflow-y-auto">
+        <motion.nav 
+          className="flex-1 py-4 px-3 overflow-y-auto"
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.05
+              }
+            }
+          }}
+          initial="hidden"
+          animate="show"
+        >
           {NAV.map(({ id, label, icon: Icon }) => (
-            <button
+            <motion.button
               key={id}
+              variants={{
+                hidden: { opacity: 0, x: -10 },
+                show: { opacity: 1, x: 0 }
+              }}
               onClick={() => setActiveTab(id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all mb-1 ${
                 activeTab === id 
@@ -180,20 +198,28 @@ export default function SuperAdminDashboard() {
                   {requests.length}
                 </span>
               )}
-            </button>
+            </motion.button>
           ))}
-        </nav>
+        </motion.nav>
 
         {/* Logout */}
-        <div className="p-6 border-t border-gray-100">
-          <LuminaButton
-            variant="ghost"
-            fullWidth
-            onClick={handleLogout}
-            className="!text-red-500 hover:!bg-red-50 !py-2.5"
-          >
-            <LogOut size={15} /> LOGOUT
-          </LuminaButton>
+        <div className="p-6 border-t border-gray-100 flex justify-center">
+          <div className="w-full relative">
+            <Magnetic>
+              <motion.button
+                whileHover={{ scale: 1.03, backgroundColor: '#fef2f2', y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-red-600 font-bold text-sm tracking-wider transition-colors border border-transparent hover:border-red-100 cursor-pointer"
+                style={{
+                  boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.05)',
+                }}
+              >
+                <LogOut size={16} strokeWidth={2.5} /> LOGOUT
+              </motion.button>
+            </Magnetic>
+          </div>
         </div>
       </aside>
 
@@ -206,11 +232,24 @@ export default function SuperAdminDashboard() {
             <motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2 uppercase">Platform Performance</h1>
               <p className="text-sm font-bold text-gray-400 mb-8 tracking-wide">ECOSYSTEM ANALYTICS & HUB OVERVIEW</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.1
+                    }
+                  }
+                }}
+                initial="hidden"
+                animate="show"
+              >
                 <StatCard label="Active Admins"    value={stats?.totalAdmins}     icon={Users}        accent="#2563EB" />
                 <StatCard label="Total Events"     value={stats?.totalEvents}     icon={CalendarDays} accent="#10B981" />
                 <StatCard label="Pending Requests" value={stats?.pendingRequests} icon={Hourglass}    accent="#F43F5E" />
-              </div>
+              </motion.div>
               <div className="mt-8">
                 <LuminaButton onClick={() => { fetchStats(); toast.success('SYNCED DATA'); }} variant="secondary">
                   <RefreshCw size={14} className="mr-2" /> Sync Data
@@ -243,11 +282,27 @@ export default function SuperAdminDashboard() {
                   <p className="text-gray-500 max-w-xs font-medium">All applications have been processed. Great work!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <motion.div 
+                  className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1
+                      }
+                    }
+                  }}
+                  initial="hidden"
+                  animate="show"
+                >
                   {requests.map((req) => (
                     <motion.div
                       key={req._id}
-                      initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        show: { opacity: 1, y: 0 }
+                      }}
                       className="lumina-card overflow-hidden !p-0"
                     >
                       <div className="p-6">
@@ -288,7 +343,7 @@ export default function SuperAdminDashboard() {
                       </div>
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
             </motion.div>
           )}
@@ -315,9 +370,28 @@ export default function SuperAdminDashboard() {
                         ))}
                       </tr>
                     </thead>
-                    <tbody>
+                    <motion.tbody
+                      variants={{
+                        hidden: { opacity: 0 },
+                        show: {
+                          opacity: 1,
+                          transition: {
+                            staggerChildren: 0.05
+                          }
+                        }
+                      }}
+                      initial="hidden"
+                      animate="show"
+                    >
                       {admins.map((admin, i) => (
-                        <tr key={admin._id} style={{ borderBottom: '2px solid #F1F5F9', background: i % 2 === 0 ? '#fff' : '#F8FAFC' }}>
+                        <motion.tr 
+                          key={admin._id} 
+                          variants={{
+                            hidden: { opacity: 0, x: -10 },
+                            show: { opacity: 1, x: 0 }
+                          }}
+                          style={{ borderBottom: '2px solid #F1F5F9', background: i % 2 === 0 ? '#fff' : '#F8FAFC' }}
+                        >
                           <td style={{ padding: '0.85rem 1rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.85rem', color: '#1E293B' }}>{admin.username}</td>
                           <td style={{ padding: '0.85rem 1rem', fontSize: '0.82rem', fontWeight: 600, color: '#475569' }}>{admin.email}</td>
                           <td style={{ padding: '0.85rem 1rem' }}>
@@ -329,9 +403,9 @@ export default function SuperAdminDashboard() {
                               <Trash2 size={12} className="mr-1.5" /> Delete Admin
                             </LuminaButton>
                           </td>
-                        </tr>
+                        </motion.tr>
                       ))}
-                    </tbody>
+                    </motion.tbody>
                   </table>
                 </div>
               )}

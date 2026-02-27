@@ -23,7 +23,10 @@ export default function CheckInPage() {
           setInvalid(true);
         }
       })
-      .catch(() => setInvalid(true))
+      .catch(() => {
+        setInvalid(true);
+        toast.error('INVALID OR EXPIRED LINK');
+      })
       .finally(() => setVerifying(false));
   }, [token]);
 
@@ -35,11 +38,14 @@ export default function CheckInPage() {
       const res = await submitCheckin({ token, participantName: name.trim() });
       if (res.action) {
         setResult({ success: true, message: res.message, action: res.action });
+        toast.success(res.action === 'CHECKED_IN' ? 'CHECK-IN SUCCESSFUL' : 'CHECK-OUT SUCCESSFUL');
       } else {
         setResult({ success: false, message: res.message || 'Something went wrong.' });
+        toast.error(res.message || 'SUBMISSION FAILED');
       }
     } catch {
       setResult({ success: false, message: 'Network error. Please try again.' });
+      toast.error('NETWORK ERROR - PLEASE TRY AGAIN');
     } finally {
       setSubmitting(false);
     }
@@ -187,99 +193,103 @@ export default function CheckInPage() {
         }}
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px' }}
-      >
-        {/* Header badge */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
-            className="inline-flex items-center gap-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-100"
-          >
-            <div className={`p-1.5 rounded-full ${isCheckIn ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
-              {isCheckIn ? <LogIn size={16} /> : <LogOut size={16} />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={result ? 'result' : 'form'}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px' }}
+        >
+          {/* Header badge */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div
+              className="inline-flex items-center gap-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-100"
+            >
+              <div className={`p-1.5 rounded-full ${isCheckIn ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                {isCheckIn ? <LogIn size={16} /> : <LogOut size={16} />}
+              </div>
+              <span className="font-bold text-xs tracking-widest text-gray-800">
+                {isCheckIn ? 'SESSION CHECK-IN' : 'SESSION CHECK-OUT'}
+              </span>
             </div>
-            <span className="font-bold text-xs tracking-widest text-gray-800">
-              {isCheckIn ? 'SESSION CHECK-IN' : 'SESSION CHECK-OUT'}
-            </span>
           </div>
-        </div>
 
-        <div className="lumina-card !p-0 overflow-hidden shadow-2xl">
-          {/* Event Info */}
-          <div
-            className="p-8 border-b border-gray-100"
+          <div className="lumina-card !p-0 overflow-hidden shadow-2xl">
+            {/* Event Info */}
+            <div
+              className="p-8 border-b border-gray-100"
+              style={{
+                background: isCheckIn 
+                  ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.02) 100%)' 
+                  : 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.02) 100%)',
+              }}
+            >
+              <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-2">
+                {eventInfo?.eventDate}
+              </p>
+              <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                {eventInfo?.eventName}
+              </h2>
+            </div>
+
+            <div className="p-8">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">
+                  YOUR FULL NAME
+                </label>
+                <input
+                  className="lumina-input"
+                  type="text"
+                  placeholder="How should we address you?"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <p style={{ fontSize: '0.75rem', fontWeight: 600, opacity: 0.55, margin: 0 }}>
+                {isCheckIn
+                  ? '✅ Your attendance will be marked when you submit.'
+                  : '✅ Your departure will be recorded when you submit.'}
+              </p>
+
+              <LuminaButton
+                type="submit"
+                variant="primary"
+                disabled={submitting || !name.trim()}
+                fullWidth
+                className={isCheckIn ? '' : '!bg-purple-600 !shadow-purple-100 hover:!bg-purple-700'}
+              >
+                {submitting ? (
+                  'Syncing...'
+                ) : isCheckIn ? (
+                  <><LogIn size={18} /> Confirm Attendance</>
+                ) : (
+                  <><LogOut size={18} /> Confirm Departure</>
+                )}
+              </LuminaButton>
+            </form>
+            </div>
+          </div>
+
+          <p
             style={{
-              background: isCheckIn 
-                ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.02) 100%)' 
-                : 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.02) 100%)',
+              textAlign: 'center',
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              opacity: 0.4,
+              marginTop: '1rem',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
             }}
           >
-            <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-2">
-              {eventInfo?.eventDate}
-            </p>
-            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight leading-tight">
-              {eventInfo?.eventName}
-            </h2>
-          </div>
-
-          <div className="p-8">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">
-                YOUR FULL NAME
-              </label>
-              <input
-                className="lumina-input"
-                type="text"
-                placeholder="How should we address you?"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoFocus
-              />
-            </div>
-
-            <p style={{ fontSize: '0.75rem', fontWeight: 600, opacity: 0.55, margin: 0 }}>
-              {isCheckIn
-                ? '✅ Your attendance will be marked when you submit.'
-                : '✅ Your departure will be recorded when you submit.'}
-            </p>
-
-            <LuminaButton
-              type="submit"
-              variant="primary"
-              disabled={submitting || !name.trim()}
-              fullWidth
-              className={isCheckIn ? '' : '!bg-purple-600 !shadow-purple-100 hover:!bg-purple-700'}
-            >
-              {submitting ? (
-                'Syncing...'
-              ) : isCheckIn ? (
-                <><LogIn size={18} /> Confirm Attendance</>
-              ) : (
-                <><LogOut size={18} /> Confirm Departure</>
-              )}
-            </LuminaButton>
-          </form>
-          </div>
-        </div>
-
-        <p
-          style={{
-            textAlign: 'center',
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            opacity: 0.4,
-            marginTop: '1rem',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-          }}
-        >
-          Powered by AttendQR
-        </p>
-      </motion.div>
+            Powered by AttendQR
+          </p>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

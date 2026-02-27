@@ -4,7 +4,23 @@ import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Download, LogIn, LogOut, CheckCircle2 } from 'lucide-react';
 import LuminaButton from '../components/LuminaButton';
+import toast from 'react-hot-toast';
 import { getEvent } from '../api';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
 
 export default function QRDisplayPage() {
   const { id } = useParams();
@@ -39,6 +55,7 @@ export default function QRDisplayPage() {
       a.download = `${event.eventName}-${tokenType}-qr.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
+      toast.success(`${tokenType} QR DOWNLOADED`);
     };
     img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
   };
@@ -79,9 +96,13 @@ export default function QRDisplayPage() {
           </LuminaButton>
         </div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
           {/* Main Content Header */}
-          <div className="lumina-card !p-10 mb-8 overflow-hidden relative">
+          <motion.div variants={itemVariants} className="lumina-card !p-10 mb-8 overflow-hidden relative">
             <div className="relative z-10">
               <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] tracking-[0.2em] uppercase mb-4">
                 <div className="w-4 h-[2px] bg-blue-600" />
@@ -94,9 +115,9 @@ export default function QRDisplayPage() {
             </div>
             
             <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-blue-50 rounded-full blur-3xl opacity-50" />
-          </div>
+          </motion.div>
 
-          <div className="bg-white/60 backdrop-blur-sm border border-blue-100 rounded-2xl p-6 mb-10 flex items-start gap-4 shadow-sm shadow-blue-50/50">
+          <motion.div variants={itemVariants} className="bg-white/60 backdrop-blur-sm border border-blue-100 rounded-2xl p-6 mb-10 flex items-start gap-4 shadow-sm shadow-blue-50/50">
             <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
               <QRCodeSVG value="icon" size={24} />
             </div>
@@ -106,12 +127,12 @@ export default function QRDisplayPage() {
                 Download and print these unique assets. Participants only need to scan to mark their participation status instantly.
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* QR Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Check-In QR */}
-            <div className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
+            <motion.div variants={itemVariants} className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
               <div className="w-full flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 border border-blue-100/50">
@@ -143,10 +164,10 @@ export default function QRDisplayPage() {
               <LuminaButton variant="primary" fullWidth onClick={() => downloadQR('checkin', event.startQrToken)}>
                 <Download size={16} /> DOWNLOAD ASSET
               </LuminaButton>
-            </div>
+            </motion.div>
 
             {/* Check-Out QR */}
-            <div className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
+            <motion.div variants={itemVariants} className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
               <div className="w-full flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-purple-50 rounded-xl text-purple-600 border border-purple-100/50">
@@ -183,7 +204,7 @@ export default function QRDisplayPage() {
               >
                 <Download size={16} /> DOWNLOAD ASSET
               </LuminaButton>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>

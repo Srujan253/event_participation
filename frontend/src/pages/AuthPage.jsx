@@ -77,11 +77,13 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4 font-['Montserrat',sans-serif]">
       {/* Container */}
-      <div 
+      <motion.div 
+        layout
         className="auth-container"
         style={{
           flexDirection: isLogin ? 'row' : 'row-reverse'
         }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
         {/* Half A: The Form */}
         <div className="auth-form-panel">
@@ -107,89 +109,146 @@ export default function AuthPage() {
                 {isLogin ? 'Sign in to manage your events' : 'Submit a request to join as an event admin'}
               </p>
 
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                {!isLogin && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Full Name</label>
+              <motion.form 
+                onSubmit={handleSubmit} 
+                style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.05
+                    }
+                  }
+                }}
+                initial="hidden"
+                animate="show"
+              >
+                <AnimatePresence mode="popLayout">
+                  {!isLogin && (
+                    <motion.div 
+                      key="name"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}
+                    >
+                      <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Full Name</label>
+                      <div style={{ position: 'relative' }}>
+                        <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input
+                          type="text" name="username" placeholder="NAME SURNAME" required
+                          value={form.username} onChange={handleChange}
+                          className="lumina-input"
+                          style={{ paddingLeft: '2.8rem' }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <motion.div 
+                    key="email"
+                    variants={{
+                      hidden: { opacity: 0, y: 5 },
+                      show: { opacity: 1, y: 0 }
+                    }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}
+                  >
+                    <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Email Address</label>
                     <div style={{ position: 'relative' }}>
-                      <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
-                        type="text" name="username" placeholder="NAME SURNAME" required
-                        value={form.username} onChange={handleChange}
+                        type="email" name="email" placeholder="EMAIL@EXAMPLE.COM" required
+                        value={form.email} onChange={handleChange}
                         className="lumina-input"
                         style={{ paddingLeft: '2.8rem' }}
                       />
                     </div>
-                  </div>
-                )}
+                  </motion.div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Email Address</label>
-                  <div style={{ position: 'relative' }}>
-                    <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input
-                      type="email" name="email" placeholder="EMAIL@EXAMPLE.COM" required
-                      value={form.email} onChange={handleChange}
-                      className="brutal-input"
-                      style={{ paddingLeft: '2.8rem' }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Password</label>
-                  <div style={{ position: 'relative' }}>
-                    <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input
-                      type={showPass ? 'text' : 'password'} name="password" placeholder="••••••••" required
-                      value={form.password} onChange={handleChange}
-                        className="lumina-input"
-                        style={{ paddingLeft: '2.8rem', paddingRight: '3rem' }}
-                      />
-                    <button
-                      type="button" onClick={() => setShowPass(!showPass)}
-                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}
-                    >
-                      {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                {!isLogin && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Purpose of Joining</label>
+                  <motion.div 
+                    key="password"
+                    variants={{
+                      hidden: { opacity: 0, y: 5 },
+                      show: { opacity: 1, y: 0 }
+                    }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}
+                  >
+                    <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Password</label>
                     <div style={{ position: 'relative' }}>
-                      <FileText size={18} style={{ position: 'absolute', left: '12px', top: '14px' }} />
-                      <textarea
-                        name="purpose" placeholder="GIVE A BRIEF REASON FOR ACCESS..." required
-                        value={form.purpose} onChange={handleChange} rows={3}
-                        className="lumina-input"
-                        style={{ paddingLeft: '2.8rem', resize: 'none' }}
-                      />
+                      <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type={showPass ? 'text' : 'password'} name="password" placeholder="••••••••" required
+                        value={form.password} onChange={handleChange}
+                          className="lumina-input"
+                          style={{ paddingLeft: '2.8rem', paddingRight: '3rem' }}
+                        />
+                      <button
+                        type="button" onClick={() => setShowPass(!showPass)}
+                        style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}
+                      >
+                        {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
                     </div>
-                  </div>
-                )}
+                  </motion.div>
+
+                  {!isLogin && (
+                    <motion.div 
+                      key="purpose"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', overflow: 'hidden' }}
+                    >
+                      <label style={{ fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase' }}>Purpose of Joining</label>
+                      <div style={{ position: 'relative' }}>
+                        <FileText size={18} style={{ position: 'absolute', left: '12px', top: '14px' }} />
+                        <textarea
+                          name="purpose" placeholder="GIVE A BRIEF REASON FOR ACCESS..." required
+                          value={form.purpose} onChange={handleChange} rows={3}
+                          className="lumina-input"
+                          style={{ paddingLeft: '2.8rem', resize: 'none' }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {errorStatus === 'pending' && (
-                  <div style={{ background: '#EFF6FF', color: 'var(--action-blue)', border: '1px solid #DBEAFE', padding: '0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    style={{ background: '#EFF6FF', color: 'var(--action-blue)', border: '1px solid #DBEAFE', padding: '0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}
+                  >
                     <Clock size={16} /> ACCOUNT PENDING APPROVAL
-                  </div>
+                  </motion.div>
                 )}
                 {errorStatus === 'rejected' && (
-                  <div style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #FEE2E2', padding: '0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #FEE2E2', padding: '0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}
+                  >
                     <XCircle size={16} /> REQUEST REJECTED BY SUPER ADMIN
-                  </div>
+                  </motion.div>
                 )}
 
-                <LuminaButton
-                  type="submit"
-                  disabled={loading}
-                  fullWidth
-                  className="mt-4"
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    show: { opacity: 1, y: 0 }
+                  }}
                 >
-                  {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Submit Request'}
-                </LuminaButton>
-              </form>
+                  <LuminaButton
+                    type="submit"
+                    disabled={loading}
+                    fullWidth
+                    className="mt-4"
+                  >
+                    {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Submit Request'}
+                  </LuminaButton>
+                </motion.div>
+              </motion.form>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -220,7 +279,7 @@ export default function AuthPage() {
             {isLogin ? 'Go to Register' : 'Go to Login'}
           </LuminaButton>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
