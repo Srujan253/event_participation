@@ -9,7 +9,6 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Event Attendance System',
         short_name: 'AttendQR',
@@ -20,24 +19,8 @@ export default defineConfig({
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
-          },
-        ],
+        // Icons temporarily removed to fix 404 errors as they don't exist in the public folder yet.
+        // You can generate and add pwa-192x192.png and pwa-512x512.png to the public/ folder later.
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
