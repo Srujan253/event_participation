@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import LuminaButton from '../components/LuminaButton';
+import { LogIn, LogOut, Loader, XCircle, CheckCircle } from 'lucide-react';
 import { verifyToken, submitCheckin } from '../api';
 import toast from 'react-hot-toast';
 
