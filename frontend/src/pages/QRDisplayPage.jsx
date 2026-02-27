@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
-import { ArrowLeft, Download, LogIn, LogOut, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Download, LogIn, LogOut, CheckCircle2, Copy } from 'lucide-react';
 import LuminaButton from '../components/LuminaButton';
 import toast from 'react-hot-toast';
 import { getEvent } from '../api';
@@ -60,6 +60,11 @@ export default function QRDisplayPage() {
     img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
   };
 
+  const copyToClipboard = (url, label) => {
+    navigator.clipboard.writeText(url);
+    toast.success(`${label} Link Copied!`);
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -102,13 +107,18 @@ export default function QRDisplayPage() {
           animate="show"
         >
           {/* Main Content Header */}
-          <motion.div variants={itemVariants} className="lumina-card !p-10 mb-8 overflow-hidden relative">
+          <motion.div variants={itemVariants} className="lumina-card !p-6 md:!p-10 mb-8 overflow-hidden relative">
             <div className="relative z-10">
               <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] tracking-[0.2em] uppercase mb-4">
                 <div className="w-4 h-[2px] bg-blue-600" />
                 ASSET GENERATION
               </div>
               <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter mb-2">{event.eventName}</h1>
+              {event?.description && (
+                <p className="text-gray-600 text-sm mb-4 max-w-2xl leading-relaxed whitespace-pre-wrap">
+                  {event.description}
+                </p>
+              )}
               <p className="text-gray-500 font-bold flex items-center gap-2">
                 <CheckCircle2 size={16} className="text-green-500" /> Event scheduled for {event.eventDate}
               </p>
@@ -132,15 +142,15 @@ export default function QRDisplayPage() {
           {/* QR Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Check-In QR */}
-            <motion.div variants={itemVariants} className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
+            <motion.div variants={itemVariants} className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-6 md:!p-8 flex flex-col items-center">
               <div className="w-full flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 border border-blue-100/50">
-                    <LogIn size={22} />
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-2 md:p-2.5 bg-blue-50 rounded-xl text-blue-600 border border-blue-100/50">
+                    <LogIn size={20} className="md:w-[22px] md:h-[22px]" />
                   </div>
-                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter">Check-In</h2>
+                  <h2 className="text-lg md:text-xl font-black text-gray-900 uppercase tracking-tighter">Check-In</h2>
                 </div>
-                <div className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded tracking-widest uppercase">GATE 01</div>
+                <div className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded tracking-widest uppercase break-keep text-center ml-2">GATE 01</div>
               </div>
 
               <div className="relative mb-8 p-6 bg-gray-50 rounded-3xl border border-gray-100 group-hover:bg-white transition-colors duration-500">
@@ -154,9 +164,15 @@ export default function QRDisplayPage() {
                 />
               </div>
 
-              <div className="w-full bg-gray-50 rounded-xl p-4 mb-8 border border-gray-100">
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-1">Direct Access Link</div>
-                <p className="text-[11px] font-bold text-gray-600 break-all family-mono opacity-80">
+              <div 
+                className="w-full bg-gray-50 rounded-xl p-4 mb-8 border border-gray-100 cursor-pointer hover:bg-white hover:border-gray-200 transition-colors group/link"
+                onClick={() => copyToClipboard(checkInUrl, 'Check-In')}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Direct Access Link</div>
+                  <Copy size={12} className="text-gray-400 group-hover/link:text-blue-500 transition-colors" />
+                </div>
+                <p className="text-[11px] font-bold text-gray-600 break-all family-mono opacity-80 group-hover/link:text-blue-600 transition-colors">
                   {checkInUrl}
                 </p>
               </div>
@@ -167,15 +183,15 @@ export default function QRDisplayPage() {
             </motion.div>
 
             {/* Check-Out QR */}
-            <motion.div variants={itemVariants} className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
+            <motion.div variants={itemVariants} className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-6 md:!p-8 flex flex-col items-center">
               <div className="w-full flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-purple-50 rounded-xl text-purple-600 border border-purple-100/50">
-                    <LogOut size={22} />
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-2 md:p-2.5 bg-purple-50 rounded-xl text-purple-600 border border-purple-100/50">
+                    <LogOut size={20} className="md:w-[22px] md:h-[22px]" />
                   </div>
-                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter">Check-Out</h2>
+                  <h2 className="text-lg md:text-xl font-black text-gray-900 uppercase tracking-tighter">Check-Out</h2>
                 </div>
-                <div className="text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-1 rounded tracking-widest uppercase">GATE 02</div>
+                <div className="text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-1 rounded tracking-widest uppercase break-keep text-center ml-2">GATE 02</div>
               </div>
 
               <div className="relative mb-8 p-6 bg-gray-50 rounded-3xl border border-gray-100 group-hover:bg-white transition-colors duration-500">
@@ -189,9 +205,15 @@ export default function QRDisplayPage() {
                 />
               </div>
 
-              <div className="w-full bg-gray-50 rounded-xl p-4 mb-8 border border-gray-100">
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-1">Direct Access Link</div>
-                <p className="text-[11px] font-bold text-gray-600 break-all family-mono opacity-80">
+              <div 
+                className="w-full bg-gray-50 rounded-xl p-4 mb-8 border border-gray-100 cursor-pointer hover:bg-white hover:border-gray-200 transition-colors group/link"
+                onClick={() => copyToClipboard(checkOutUrl, 'Check-Out')}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Direct Access Link</div>
+                  <Copy size={12} className="text-gray-400 group-hover/link:text-purple-500 transition-colors" />
+                </div>
+                <p className="text-[11px] font-bold text-gray-600 break-all family-mono opacity-80 group-hover/link:text-purple-600 transition-colors">
                   {checkOutUrl}
                 </p>
               </div>

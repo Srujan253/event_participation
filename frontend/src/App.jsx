@@ -30,33 +30,36 @@ const SuperAdminRoute = ({ children }) => {
   return children;
 };
 
-// Lumina Modern Toaster config
+// Lumina Modern Glassmorphism Toaster config
 const toastStyle = {
-  border: '1px solid var(--gray-200)',
-  borderRadius: 'var(--radius-md)',
-  boxShadow: 'var(--lumina-shadow)',
-  background: '#FFFFFF',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
+  borderRadius: '9999px', // Pill shape instead of rectangle
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+  background: 'rgba(255, 255, 255, 0.75)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
   color: 'var(--text-main)',
-  fontWeight: '600',
+  fontWeight: '700',
   fontSize: '0.9rem',
   fontFamily: "'Inter', sans-serif",
+  padding: '12px 24px',
 };
 
 function App() {
   return (
     <BrowserRouter>
       <Toaster
-        position="top-right"
+        position="top-center" // Centered as requested
         toastOptions={{
           duration: 3500,
           style: toastStyle,
           success: { 
             iconTheme: { primary: 'var(--action-blue)', secondary: '#fff' },
-            style: { ...toastStyle, borderLeft: '4px solid var(--action-blue)' }
+            style: { ...toastStyle }
           },
           error: { 
             iconTheme: { primary: '#EF4444', secondary: '#fff' },
-            style: { ...toastStyle, borderLeft: '4px solid #EF4444' }
+            style: { ...toastStyle }
           },
         }}
       />

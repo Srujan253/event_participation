@@ -113,14 +113,34 @@ export default function SuperAdminDashboard() {
   };
 
   const handleDelete = async (id, username) => {
-    if (!window.confirm(`DELETE admin "${username}" and ALL their events? This cannot be undone.`)) return;
-    setLoadingAction('del' + id);
-    try {
-      const res = await deleteSuperAdminAdmin(id);
-      toast.success(`ADMIN DELETED · ${res.eventsDeleted} events removed`);
-      await Promise.all([fetchAdmins(), fetchStats()]);
-    } catch { toast.error('Delete failed'); }
-    finally { setLoadingAction(null); }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-bold text-sm text-gray-800">DELETE admin "{username}" and ALL their events?<br/><span className="text-red-500 text-xs">This cannot be undone.</span></p>
+        <div className="flex gap-2 justify-end">
+          <button 
+            onClick={() => toast.dismiss(t.id)} 
+            className="px-4 py-1.5 text-sm font-bold bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 hover:scale-105 active:scale-95 cursor-pointer transition-all"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={async () => {
+              toast.dismiss(t.id);
+              setLoadingAction('del' + id);
+              try {
+                const res = await deleteSuperAdminAdmin(id);
+                toast.success(`ADMIN DELETED · ${res.eventsDeleted || 0} events removed`);
+                await Promise.all([fetchAdmins(), fetchStats()]);
+              } catch { toast.error('Delete failed'); }
+              finally { setLoadingAction(null); }
+            }}
+            className="px-4 py-1.5 text-sm font-bold bg-red-500 text-white rounded-lg hover:bg-red-600 hover:scale-105 active:scale-95 cursor-pointer transition-all shadow-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity, id: `confirm-del-admin-${id}` });
   };
 
   const handleCreateSuperAdmin = async (e) => {

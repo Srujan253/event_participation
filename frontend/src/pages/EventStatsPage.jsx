@@ -104,13 +104,18 @@ export default function EventStatsPage() {
 
         <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
           {/* Main Stats Header */}
-          <div className="lumina-card !p-10 mb-8 overflow-hidden relative">
+          <div className="lumina-card !p-6 md:!p-10 mb-8 overflow-hidden relative">
             <div className="relative z-10">
               <div className="flex items-center gap-2 text-blue-600 font-extrabold text-[10px] tracking-[0.2em] uppercase mb-4">
                 <div className="w-4 h-[2px] bg-blue-600" />
                 INSIGHTS ENGINE
               </div>
               <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter mb-2">{event?.eventName}</h1>
+              {event?.description && (
+                <p className="text-gray-600 text-sm mb-4 max-w-2xl leading-relaxed whitespace-pre-wrap">
+                  {event.description}
+                </p>
+              )}
               <div className="flex items-center gap-4 text-gray-500 font-bold text-sm">
                 <div className="flex items-center gap-1.5"><Calendar size={14} /> {event?.eventDate}</div>
                 <div className="w-1 h-1 bg-gray-300 rounded-full" />

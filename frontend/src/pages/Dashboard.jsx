@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import LuminaButton from '../components/LuminaButton';
 import toast from 'react-hot-toast';
 import Magnetic from '../components/Magnetic';
+import LuminaDatePicker from '../components/LuminaDatePicker';
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
@@ -14,7 +15,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('list'); // 'list', 'create'
   
   // Create / Edit Form State
-  const [form, setForm] = useState({ eventName: '', eventDate: '' });
+  const [form, setForm] = useState({ eventName: '', eventDate: '', description: '' });
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -55,7 +56,7 @@ export default function Dashboard() {
         const res = await updateEvent(editingId, form);
         if (res.event) {
           setEvents(events.map(ev => ev._id === editingId ? { ...res.event, stats: ev.stats } : ev));
-          setForm({ eventName: '', eventDate: '' });
+          setForm({ eventName: '', eventDate: '', description: '' });
           setEditingId(null);
           setActiveTab('list');
           toast.success('EVENT UPDATED SUCCESSFULLY');
@@ -70,7 +71,7 @@ export default function Dashboard() {
           // New event stats are 0
           const newEvent = { ...res.event, stats: { total: 0, complete: 0, incomplete: 0 } };
           setEvents([newEvent, ...events]);
-          setForm({ eventName: '', eventDate: '' });
+          setForm({ eventName: '', eventDate: '', description: '' });
           setActiveTab('list');
           toast.success('EVENT CREATED SUCCESSFULLY');
         } else {
@@ -87,19 +88,39 @@ export default function Dashboard() {
 
   const handleEdit = (event) => {
     setEditingId(event._id);
-    setForm({ eventName: event.eventName, eventDate: event.eventDate });
+    setForm({ eventName: event.eventName, eventDate: event.eventDate, description: event.description || '' });
     setActiveTab('create');
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this event and all its attendance records?')) return;
-    try {
-      await deleteEvent(id);
-      setEvents(events.filter((e) => e._id !== id));
-      toast.success('EVENT DELETED');
-    } catch {
-      toast.error('FAILED TO DELETE EVENT');
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-bold text-sm text-gray-800">Delete this event and all its attendance records?</p>
+        <div className="flex gap-2 justify-end">
+          <button 
+            onClick={() => toast.dismiss(t.id)} 
+            className="px-4 py-1.5 text-sm font-bold bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 hover:scale-105 active:scale-95 cursor-pointer transition-all"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                await deleteEvent(id);
+                setEvents(events => events.filter((e) => e._id !== id));
+                toast.success('EVENT DELETED');
+              } catch {
+                toast.error('FAILED TO DELETE EVENT');
+              }
+            }}
+            className="px-4 py-1.5 text-sm font-bold bg-red-500 text-white rounded-lg hover:bg-red-600 hover:scale-105 active:scale-95 cursor-pointer transition-all shadow-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity, id: `confirm-delete-${id}` });
   };
 
   return (
@@ -110,12 +131,12 @@ export default function Dashboard() {
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1.5rem' }}>
         
         {/* Navigation Tabs */}
-        <div className="flex bg-white rounded-xl p-1.5 shadow-sm border border-gray-200 mb-8 max-w-fit items-center gap-1">
+        <div className="flex flex-wrap bg-white rounded-xl p-1.5 shadow-sm border border-gray-200 mb-8 w-fit items-center gap-1">
           <Magnetic>
             <motion.button
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              onClick={() => { setActiveTab('list'); setEditingId(null); setForm({ eventName: '', eventDate: '' }); }}
+              onClick={() => { setActiveTab('list'); setEditingId(null); setForm({ eventName: '', eventDate: '', description: '' }); }}
               className={`cursor-pointer px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === 'list' 
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
@@ -129,7 +150,7 @@ export default function Dashboard() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              onClick={() => { setActiveTab('create'); setEditingId(null); setForm({ eventName: '', eventDate: '' }); }}
+              onClick={() => { setActiveTab('create'); setEditingId(null); setForm({ eventName: '', eventDate: '', description: '' }); }}
               className={`cursor-pointer px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === 'create' 
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
@@ -269,7 +290,7 @@ export default function Dashboard() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="lumina-card max-w-[600px] mx-auto p-10"
+                className="lumina-card max-w-[600px] mx-auto p-6 md:p-10"
               >
                 <h2 className="text-2xl font-bold text-gray-900 mb-8">
                   {editingId ? 'Edit Event Details' : 'Design New Event'}
@@ -288,14 +309,22 @@ export default function Dashboard() {
                     />
                   </div>
                   
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 relative z-50">
                     <label className="text-sm font-bold text-gray-700">Event Date</label>
-                    <input
-                      type="date"
+                    <LuminaDatePicker 
                       value={form.eventDate}
-                      onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
-                      required
-                      className="lumina-input"
+                      onChange={(date) => setForm({ ...form, eventDate: date })}
+                      placeholder="Select event date"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-bold text-gray-700">Description</label>
+                    <textarea
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      className="lumina-input min-h-[100px] resize-y"
+                      placeholder="Add event description"
                     />
                   </div>
 
@@ -316,7 +345,7 @@ export default function Dashboard() {
                     {editingId && (
                       <LuminaButton 
                         variant="secondary"
-                        onClick={() => { setActiveTab('list'); setEditingId(null); setForm({ eventName: '', eventDate: '' }); }}
+                        onClick={() => { setActiveTab('list'); setEditingId(null); setForm({ eventName: '', eventDate: '', description: '' }); }}
                       >
                         Cancel
                       </LuminaButton>

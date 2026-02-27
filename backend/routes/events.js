@@ -11,7 +11,7 @@ const router = express.Router();
 // @access Protected
 router.post('/', protect, async (req, res) => {
   try {
-    const { eventName, eventDate } = req.body;
+    const { eventName, eventDate, description } = req.body;
 
     if (!eventName || !eventDate) {
       return res.status(400).json({ message: 'Event name and date are required.' });
@@ -20,6 +20,7 @@ router.post('/', protect, async (req, res) => {
     const event = new Event({
       eventName,
       eventDate,
+      description,
       startQrToken: uuidv4(),
       endQrToken: uuidv4(),
       adminId: req.admin.id,
@@ -82,10 +83,10 @@ router.get('/:id', protect, async (req, res) => {
 // @access Protected
 router.put('/:id', protect, async (req, res) => {
   try {
-    const { eventName, eventDate } = req.body;
+    const { eventName, eventDate, description } = req.body;
     const event = await Event.findOneAndUpdate(
       { _id: req.params.id, adminId: req.admin.id },
-      { eventName, eventDate },
+      { eventName, eventDate, description },
       { new: true }
     );
     if (!event) return res.status(404).json({ message: 'Event not found.' });
