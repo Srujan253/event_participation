@@ -60,6 +60,13 @@ export const getEvents = () =>
 export const getEvent = (id) =>
   fetch(`${API_BASE}/events/${id}`, { headers: authHeaders() }).then((r) => r.json());
 
+export const updateEvent = (id, data) =>
+  fetch(`${API_BASE}/events/${id}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  }).then((r) => r.json());
+
 export const getEventStats = (id) =>
   fetch(`${API_BASE}/events/${id}/stats`, { headers: authHeaders() }).then((r) => r.json());
 

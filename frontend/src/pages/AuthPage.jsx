@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Lock, Mail, User, Eye, EyeOff, FileText, Clock, XCircle, ArrowRight, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { loginAdmin, registerAdmin } from '../api';
+import LuminaButton from '../components/LuminaButton';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -30,25 +31,19 @@ export default function AuthPage() {
         if (res.token) {
           localStorage.setItem('attendqr_token', res.token);
           localStorage.setItem('attendqr_admin', JSON.stringify(res.admin));
-          toast.success(res.admin.role === 'super_admin' ? 'SUPER ADMIN LOGIN' : 'LOGIN SUCCESSFUL', {
-            style: { border: '3px solid #000', borderRadius: '0', fontWeight: 900, textTransform: 'uppercase' }
-          });
+          toast.success(res.admin.role === 'super_admin' ? 'SUPER ADMIN LOGIN' : 'LOGIN SUCCESSFUL');
           navigate(res.admin.role === 'super_admin' ? '/superadmin' : '/');
         }
       } else {
         await registerAdmin(form);
         setRegistered(true);
-        toast.success('REQUEST SUBMITTED! AWAITING APPROVAL', {
-          style: { border: '3px solid #000', borderRadius: '0', fontWeight: 900, textTransform: 'uppercase' }
-        });
+        toast.success('REQUEST SUBMITTED! AWAITING APPROVAL');
       }
     } catch (err) {
       if (err.status === 'pending') setErrorStatus('pending');
       else if (err.status === 'rejected') setErrorStatus('rejected');
       else {
-        toast.error(err.message || 'AUTHENTICATION FAILED', {
-          style: { border: '3px solid #000', borderRadius: '0', fontWeight: 900, textTransform: 'uppercase' }
-        });
+        toast.error(err.message || 'AUTHENTICATION FAILED');
       }
     } finally {
       setLoading(false);
@@ -57,31 +52,23 @@ export default function AuthPage() {
 
   if (registered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7D61D] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }} 
+          initial={{ scale: 0.95, opacity: 0 }} 
           animate={{ scale: 1, opacity: 1 }}
-          style={{
-            background: '#fff', border: '3px solid #000', boxShadow: '12px 12px 0px #000',
-            padding: '3rem', maxWidth: '500px', width: '100%', textAlign: 'center'
-          }}
+          className="lumina-card max-width-[500px] w-full text-center p-12"
         >
           <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⏳</div>
           <h1 style={{ fontWeight: 900, fontSize: '2rem', marginBottom: '1rem', textTransform: 'uppercase' }}>Awaiting Approval</h1>
           <p style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '2rem', opacity: 0.8 }}>
             Your request has been sent to the Super Admin. Please check back later.
           </p>
-          <motion.button
-            whileTap={{ x: 2, y: 2, boxShadow: '0px 0px 0px #000' }}
+          <LuminaButton
             onClick={() => { setRegistered(false); setIsLogin(true); }}
-            style={{
-              background: '#000', color: '#fff', border: '2px solid #000',
-              boxShadow: '4px 4px 0px #000', padding: '1rem 2rem', fontWeight: 900,
-              textTransform: 'uppercase', letterSpacing: '2px', cursor: 'pointer'
-            }}
+            fullWidth
           >
             Back to Login
-          </motion.button>
+          </LuminaButton>
         </motion.div>
       </div>
     );
@@ -99,8 +86,10 @@ export default function AuthPage() {
         {/* Half A: The Form */}
         <div className="auth-form-panel">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
-            <Zap size={24} fill="#000" />
-            <span style={{ fontWeight: 900, fontSize: '1.2rem', letterSpacing: '2px' }}>ATTENDQR</span>
+            <div className="p-2 bg-blue-600 rounded-lg text-white">
+              <Zap size={20} fill="white" />
+            </div>
+            <span style={{ fontWeight: 800, fontSize: '1.25rem', tracking: '-0.025em' }}>AttendQR</span>
           </div>
 
           <AnimatePresence mode="wait">
@@ -127,7 +116,7 @@ export default function AuthPage() {
                       <input
                         type="text" name="username" placeholder="NAME SURNAME" required
                         value={form.username} onChange={handleChange}
-                        className="brutal-input"
+                        className="lumina-input"
                         style={{ paddingLeft: '2.8rem' }}
                       />
                     </div>
@@ -154,9 +143,9 @@ export default function AuthPage() {
                     <input
                       type={showPass ? 'text' : 'password'} name="password" placeholder="••••••••" required
                       value={form.password} onChange={handleChange}
-                      className="brutal-input"
-                      style={{ paddingLeft: '2.8rem', paddingRight: '3rem' }}
-                    />
+                        className="lumina-input"
+                        style={{ paddingLeft: '2.8rem', paddingRight: '3rem' }}
+                      />
                     <button
                       type="button" onClick={() => setShowPass(!showPass)}
                       style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}
@@ -174,7 +163,7 @@ export default function AuthPage() {
                       <textarea
                         name="purpose" placeholder="GIVE A BRIEF REASON FOR ACCESS..." required
                         value={form.purpose} onChange={handleChange} rows={3}
-                        className="brutal-input"
+                        className="lumina-input"
                         style={{ paddingLeft: '2.8rem', resize: 'none' }}
                       />
                     </div>
@@ -182,27 +171,24 @@ export default function AuthPage() {
                 )}
 
                 {errorStatus === 'pending' && (
-                  <div style={{ background: '#F7D61D', border: '2px solid #000', padding: '0.8rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem' }}>
+                  <div style={{ background: '#EFF6FF', color: 'var(--action-blue)', border: '1px solid #DBEAFE', padding: '0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
                     <Clock size={16} /> ACCOUNT PENDING APPROVAL
                   </div>
                 )}
                 {errorStatus === 'rejected' && (
-                  <div style={{ background: '#ff4444', color: '#fff', border: '2px solid #000', padding: '0.8rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem' }}>
+                  <div style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #FEE2E2', padding: '0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
                     <XCircle size={16} /> REQUEST REJECTED BY SUPER ADMIN
                   </div>
                 )}
 
-                <motion.button
-                  whileTap={{ x: 2, y: 2, boxShadow: '0px 0px 0px #000' }}
-                  type="submit" disabled={loading}
-                  style={{
-                    marginTop: '1rem', background: '#000', color: '#fff', border: '2px solid #000',
-                    boxShadow: '4px 4px 0px #000', padding: '1rem', fontWeight: 900,
-                    textTransform: 'uppercase', letterSpacing: '2px', cursor: 'pointer'
-                  }}
+                <LuminaButton
+                  type="submit"
+                  disabled={loading}
+                  fullWidth
+                  className="mt-4"
                 >
-                  {loading ? 'Processing...' : isLogin ? 'Sign In →' : 'Submit Request +'}
-                </motion.button>
+                  {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Submit Request'}
+                </LuminaButton>
               </form>
             </motion.div>
           </AnimatePresence>
@@ -212,8 +198,8 @@ export default function AuthPage() {
         <div 
           className="auth-accent-panel"
           style={{
-            borderLeft: isLogin ? '3px solid #000' : 'none',
-            borderRight: isLogin ? 'none' : '3px solid #000'
+            background: 'linear-gradient(135deg, var(--action-blue) 0%, #1E40AF 100%)',
+            color: '#fff'
           }}
         >
           <Sparkles size={48} className="mb-4" fill="#000" />
@@ -226,17 +212,13 @@ export default function AuthPage() {
               : "Already part of us? Sign in to continue your journey."
             }
           </p>
-          <motion.button
-            whileTap={{ x: 2, y: 2, boxShadow: '0px 0px 0px #000' }}
+          <LuminaButton
+            variant="secondary"
             onClick={() => setIsLogin(!isLogin)}
-            style={{
-              background: 'transparent', color: '#000', border: '2px solid #000',
-              boxShadow: '4px 4px 0px #000', padding: '0.8rem 2rem', fontWeight: 900,
-              textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer'
-            }}
+            className="!bg-white/10 !border-white/20 !text-white hover:!bg-white/20"
           >
             {isLogin ? 'Go to Register' : 'Go to Login'}
-          </motion.button>
+          </LuminaButton>
         </div>
       </div>
     </div>

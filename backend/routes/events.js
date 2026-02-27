@@ -38,8 +38,25 @@ router.post('/', protect, async (req, res) => {
 // @access Protected
 router.get('/', protect, async (req, res) => {
   try {
-    const events = await Event.find({ adminId: req.admin.id }).sort({ createdAt: -1 });
-    res.json(events);
+    const events = await Event.find({ adminId: req.admin.id }).sort({ createdAt: -1 }).lean();
+    
+    // Fetch stats for each event
+    const eventsWithStats = await Promise.all(events.map(async (event) => {
+      const attendanceRecords = await Attendance.find({ eventId: event._id });
+      const totalParticipants = attendanceRecords.length;
+      const complete = attendanceRecords.filter((r) => r.isComplete).length;
+      const incomplete = totalParticipants - complete;
+      return {
+        ...event,
+        stats: {
+          total: totalParticipants,
+          complete,
+          incomplete
+        }
+      };
+    }));
+
+    res.json(eventsWithStats);
   } catch (err) {
     console.error('[GET EVENTS ERROR]', err);
     res.status(500).json({ message: 'Server error.', error: err.message });
@@ -56,6 +73,25 @@ router.get('/:id', protect, async (req, res) => {
     res.json(event);
   } catch (err) {
     console.error('[GET EVENT ERROR]', err);
+    res.status(500).json({ message: 'Server error.', error: err.message });
+  }
+});
+
+// @route  PUT /api/events/:id
+// @desc   Update an event
+// @access Protected
+router.put('/:id', protect, async (req, res) => {
+  try {
+    const { eventName, eventDate } = req.body;
+    const event = await Event.findOneAndUpdate(
+      { _id: req.params.id, adminId: req.admin.id },
+      { eventName, eventDate },
+      { new: true }
+    );
+    if (!event) return res.status(404).json({ message: 'Event not found.' });
+    res.json({ message: 'Event updated successfully.', event });
+  } catch (err) {
+    console.error('[UPDATE EVENT ERROR]', err);
     res.status(500).json({ message: 'Server error.', error: err.message });
   }
 });

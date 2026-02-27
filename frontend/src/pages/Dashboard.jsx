@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, LogOut, QrCode, BarChart2, Trash2, Calendar, Zap, X } from 'lucide-react';
-import BrutalButton from '../components/BrutalButton';
-import { getEvents, createEvent, deleteEvent } from '../api';
+import { LogOut, Calendar, Edit2, Trash2, User, QrCode, BarChart2, Plus } from 'lucide-react';
+import { getEvents, createEvent, deleteEvent, updateEvent } from '../api';
+import Navbar from '../components/Navbar';
+import LuminaButton from '../components/LuminaButton';
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('list'); // 'list', 'create'
+  
+  // Create / Edit Form State
   const [form, setForm] = useState({ eventName: '', eventDate: '' });
+  const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
-  const [creating, setCreating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  
   const navigate = useNavigate();
-
   const admin = JSON.parse(localStorage.getItem('attendqr_admin') || '{}');
 
   const fetchEvents = async () => {
@@ -38,24 +41,46 @@ export default function Dashboard() {
     navigate('/auth');
   };
 
-  const handleCreate = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setCreating(true);
+    setSubmitting(true);
     setError('');
     try {
-      const res = await createEvent(form);
-      if (res.event) {
-        setEvents([res.event, ...events]);
-        setShowModal(false);
-        setForm({ eventName: '', eventDate: '' });
+      if (editingId) {
+        // Update Event
+        const res = await updateEvent(editingId, form);
+        if (res.event) {
+          setEvents(events.map(ev => ev._id === editingId ? { ...res.event, stats: ev.stats } : ev));
+          setForm({ eventName: '', eventDate: '' });
+          setEditingId(null);
+          setActiveTab('list');
+        } else {
+          setError(res.message || 'Failed to update event.');
+        }
       } else {
-        setError(res.message || 'Failed to create event.');
+        // Create Event
+        const res = await createEvent(form);
+        if (res.event) {
+          // New event stats are 0
+          const newEvent = { ...res.event, stats: { total: 0, complete: 0, incomplete: 0 } };
+          setEvents([newEvent, ...events]);
+          setForm({ eventName: '', eventDate: '' });
+          setActiveTab('list');
+        } else {
+          setError(res.message || 'Failed to create event.');
+        }
       }
     } catch {
       setError('Network error.');
     } finally {
-      setCreating(false);
+      setSubmitting(false);
     }
+  };
+
+  const handleEdit = (event) => {
+    setEditingId(event._id);
+    setForm({ eventName: event.eventName, eventDate: event.eventDate });
+    setActiveTab('create');
   };
 
   const handleDelete = async (id) => {
@@ -69,191 +94,193 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="bg-grid min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      {/* Header */}
-      <header
-        style={{
-          borderBottom: 'var(--brutal-border)',
-          background: '#000',
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Zap size={22} color="var(--brand-yellow)" fill="var(--brand-yellow)" />
-          <span style={{ color: 'var(--brand-yellow)', fontWeight: 900, fontSize: '1.1rem', letterSpacing: '2px' }}>
-            ATTENDQR
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 700, opacity: 0.7 }}>
-            {admin.username || 'Admin'}
-          </span>
-          <BrutalButton variant="red" onClick={handleLogout}>
-            <LogOut size={14} /> Logout
-          </BrutalButton>
-        </div>
-      </header>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-surface)', fontFamily: "'Inter', sans-serif" }}>
+      <Navbar />
 
-      <main style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        {/* Page Title */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-          <div>
-            <h1 style={{ fontSize: '2.5rem', margin: 0 }}>MY EVENTS</h1>
-            <p style={{ margin: '0.25rem 0 0', fontWeight: 600, opacity: 0.6, fontSize: '0.9rem' }}>
-              {events.length} event{events.length !== 1 ? 's' : ''} total
-            </p>
-          </div>
-          <BrutalButton variant="purple" onClick={() => setShowModal(true)}>
-            <Plus size={16} /> New Event
-          </BrutalButton>
-        </div>
-
-        {/* Event Grid */}
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '3rem', opacity: 0.5, fontWeight: 900, fontSize: '1.2rem' }}>
-            LOADING...
-          </div>
-        ) : events.length === 0 ? (
-          <div className="brutal-card" style={{ textAlign: 'center', padding: '4rem', background: 'var(--brand-yellow)' }}>
-            <QrCode size={48} style={{ margin: '0 auto 1rem' }} />
-            <h2 style={{ margin: '0 0 0.5rem' }}>NO EVENTS YET</h2>
-            <p style={{ fontWeight: 600, opacity: 0.7 }}>Create your first event to get started</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gap: '1.25rem', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-            <AnimatePresence>
-              {events.map((event, i) => (
-                <motion.div
-                  key={event._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: i * 0.06 }}
-                  className="brutal-card"
-                  style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        background: 'var(--brand-purple)',
-                        color: '#fff',
-                        padding: '0.25rem 0.6rem',
-                        display: 'inline-block',
-                        fontSize: '0.65rem',
-                        fontWeight: 900,
-                        letterSpacing: '1.5px',
-                        marginBottom: '0.5rem',
-                        border: '2px solid #000',
-                      }}
-                    >
-                      EVENT
-                    </div>
-                    <h3 style={{ margin: 0, fontSize: '1.1rem', lineHeight: 1.2 }}>{event.eventName}</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.4rem', opacity: 0.6 }}>
-                      <Calendar size={13} />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>{event.eventDate}</span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <BrutalButton variant="yellow" onClick={() => navigate(`/event/${event._id}/qr`)}>
-                      <QrCode size={14} /> QR Codes
-                    </BrutalButton>
-                    <BrutalButton variant="black" onClick={() => navigate(`/event/${event._id}/stats`)}>
-                      <BarChart2 size={14} /> Stats
-                    </BrutalButton>
-                    <BrutalButton variant="red" onClick={() => handleDelete(event._id)}>
-                      <Trash2 size={14} />
-                    </BrutalButton>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-      </main>
-
-      {/* Create Event Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.7)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 100,
-              padding: '1rem',
-            }}
-            onClick={() => setShowModal(false)}
+      {/* Main Content Area */}
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+        
+        {/* Navigation Tabs */}
+        <div className="flex bg-white rounded-xl p-1.5 shadow-sm border border-gray-200 mb-8 max-w-fit">
+          <button
+            onClick={() => { setActiveTab('list'); setEditingId(null); setForm({ eventName: '', eventDate: '' }); }}
+            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === 'list' 
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+            }`}
           >
-            <motion.div
-              initial={{ scale: 0.8, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, y: 30 }}
-              onClick={(e) => e.stopPropagation()}
-              className="brutal-card"
-              style={{ width: '100%', maxWidth: '440px', background: '#fff' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ margin: 0, fontSize: '1.5rem' }}>NEW EVENT</h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  <X size={20} />
-                </button>
-              </div>
+            Event List
+          </button>
+          <button
+            onClick={() => { setActiveTab('create'); setEditingId(null); setForm({ eventName: '', eventDate: '' }); }}
+            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === 'create' 
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            {editingId ? 'Edit Event' : 'Create Event'}
+          </button>
+        </div>
 
-              <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, marginBottom: '0.4rem', letterSpacing: '1px' }}>
-                    EVENT NAME
-                  </label>
+        {/* Tab Content */}
+        <div style={{ padding: '2rem 1rem' }}>
+          
+          {/* EVENT LIST TAB */}
+          {activeTab === 'list' && (
+            <>
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '6rem 0' }}>
+                  <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-500 font-medium">Loading amazing events...</p>
+                </div>
+              ) : events.length === 0 ? (
+                <div className="lumina-card text-center py-16 flex flex-col items-center">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                    <Calendar size={32} className="text-gray-300" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No Events Yet</h3>
+                  <p className="text-gray-500 max-w-xs mb-8">Ready to start? Create your first event to generate QR codes and track participation.</p>
+                  <LuminaButton onClick={() => setActiveTab('create')}>
+                    <Plus size={18} /> Create First Event
+                  </LuminaButton>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+                  {events.map((event) => (
+                    <div
+                      key={event._id}
+                      className="lumina-card flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Event Name */}
+                        <h3 
+                          className="text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors cursor-pointer mb-2"
+                          onClick={() => navigate(`/event/${event._id}/qr`)}
+                        >
+                          {event.eventName}
+                        </h3>
+                        
+                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-6">
+                          <Calendar size={14} />
+                          {event.eventDate}
+                        </div>
+                        
+                        {/* Stats Row */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '0.75rem', marginBottom: '1rem', textAlign: 'center' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: '#333' }}>{event.stats?.complete || 0}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#888', textTransform: 'lowercase' }}>completion</div>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: '#333' }}>{event.stats?.incomplete || 0}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#888', textTransform: 'lowercase' }}>incomplete</div>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: '#333' }}>{event.stats?.total || 0}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#888', textTransform: 'lowercase' }}>Total</div>
+                          </div>
+                        </div>
+                      </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                          <LuminaButton 
+                            onClick={() => navigate(`/event/${event._id}/qr`)}
+                            variant="primary"
+                            className="!py-2"
+                          >
+                            <QrCode size={14} /> QR Codes
+                          </LuminaButton>
+                          <LuminaButton 
+                            onClick={() => navigate(`/event/${event._id}/stats`)}
+                            variant="secondary"
+                            className="!py-2"
+                          >
+                            <BarChart2 size={14} /> Stats
+                          </LuminaButton>
+                          <LuminaButton 
+                            onClick={() => handleEdit(event)}
+                            variant="secondary"
+                            className="!py-2 !text-blue-600 !border-blue-100 !bg-blue-50/50 hover:!bg-blue-50"
+                          >
+                            <Edit2 size={14} /> Edit
+                          </LuminaButton>
+                          <LuminaButton 
+                            onClick={() => handleDelete(event._id)}
+                            variant="ghost"
+                            className="!py-2 !text-red-500 hover:!bg-red-50"
+                          >
+                            <Trash2 size={14} /> Delete
+                          </LuminaButton>
+                        </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* CREATE / EDIT EVENT TAB */}
+          {activeTab === 'create' && (
+            <div className="lumina-card max-w-[600px] mx-auto p-10">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8">
+                {editingId ? 'Edit Event Details' : 'Design New Event'}
+              </h2>
+              
+              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-gray-700">Event Name</label>
                   <input
-                    className="brutal-input"
                     type="text"
-                    placeholder="e.g. Annual Tech Summit"
                     value={form.eventName}
                     onChange={(e) => setForm({ ...form, eventName: e.target.value })}
                     required
+                    className="lumina-input"
+                    placeholder="Enter a descriptive event name"
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, marginBottom: '0.4rem', letterSpacing: '1px' }}>
-                    EVENT DATE
-                  </label>
+                
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-gray-700">Event Date</label>
                   <input
-                    className="brutal-input"
                     type="date"
                     value={form.eventDate}
                     onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
                     required
+                    className="lumina-input"
                   />
                 </div>
 
                 {error && (
-                  <div style={{ background: 'var(--accent-red)', color: '#fff', padding: '0.6rem', border: 'var(--brutal-border)', fontSize: '0.8rem', fontWeight: 700 }}>
-                    ⚠ {error}
+                  <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-semibold border border-red-100">
+                    {error}
                   </div>
                 )}
 
-                <BrutalButton type="submit" variant="purple" disabled={creating} fullWidth>
-                  {creating ? 'Creating...' : '+ Create Event & Generate QR'}
-                </BrutalButton>
+                <div className="flex gap-4 mt-4">
+                  <LuminaButton 
+                    type="submit" 
+                    disabled={submitting}
+                    fullWidth
+                  >
+                    {submitting ? 'Syncing...' : (editingId ? 'Update Event' : 'Launch Event')}
+                  </LuminaButton>
+                  {editingId && (
+                    <LuminaButton 
+                      variant="secondary"
+                      onClick={() => { setActiveTab('list'); setEditingId(null); setForm({ eventName: '', eventDate: '' }); }}
+                    >
+                      Cancel
+                    </LuminaButton>
+                  )}
+                </div>
               </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          )}
+          
+        </div>
+      </main>
     </div>
   );
 }

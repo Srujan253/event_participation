@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, CheckCircle, LogOut, Trophy, RefreshCw, Download } from 'lucide-react';
+import { ArrowLeft, Users, CheckCircle, LogOut, Trophy, RefreshCw, Download, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
-import BrutalButton from '../components/BrutalButton';
+import LuminaButton from '../components/LuminaButton';
+import Navbar from '../components/Navbar';
 import { getEventStats, getAttendanceRecords, exportAttendanceCSV } from '../api';
 
 export default function EventStatsPage() {
@@ -55,8 +56,9 @@ export default function EventStatsPage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <p style={{ fontWeight: 900, fontSize: '1.5rem' }}>LOADING...</p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-surface)' }}>
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Synchronizing Intelligence...</p>
       </div>
     );
   }
@@ -67,187 +69,147 @@ export default function EventStatsPage() {
     : 0;
 
   const statCards = [
-    { label: 'Total', value: stats?.totalParticipants, color: '#000', textColor: '#fff', icon: <Users size={20} color="#fff" /> },
-    { label: 'Checked In', value: stats?.checkedIn, color: 'var(--brand-yellow)', textColor: '#000', icon: <CheckCircle size={20} /> },
-    { label: 'Checked Out', value: stats?.checkedOut, color: 'var(--brand-purple)', textColor: '#fff', icon: <LogOut size={20} color="#fff" /> },
-    { label: 'Complete', value: stats?.complete, color: '#00C853', textColor: '#000', icon: <Trophy size={20} /> },
+    { label: 'Total Registration', value: stats?.totalParticipants, color: '#2563EB', icon: <Users size={20} /> },
+    { label: 'Active Check-In', value: stats?.checkedIn, color: '#F59E0B', icon: <CheckCircle size={20} /> },
+    { label: 'Successful Departure', value: stats?.checkedOut, color: '#8B5CF6', icon: <LogOut size={20} /> },
+    { label: 'Complete Cycle', value: stats?.complete, color: '#10B981', icon: <Trophy size={20} /> },
   ];
 
   return (
-    <div className="bg-grid min-h-screen" style={{ background: 'var(--bg-primary)', padding: '1.5rem' }}>
-      <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-        {/* Back */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <BrutalButton onClick={() => navigate('/')} variant="white">
-            <ArrowLeft size={14} /> Back
-          </BrutalButton>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <BrutalButton onClick={fetchData} variant="black">
-              <RefreshCw size={14} /> Refresh
-            </BrutalButton>
-            {/* ── CSV Export Button ── */}
-            <motion.button
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-surface)', fontFamily: "'Inter', sans-serif" }}>
+      <Navbar />
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+        {/* Header Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <LuminaButton onClick={() => navigate('/')} variant="ghost" className="!pl-0 !text-gray-500">
+            <ArrowLeft size={18} className="mr-2" /> Return to Terminal
+          </LuminaButton>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <LuminaButton onClick={fetchData} variant="secondary">
+              <RefreshCw size={14} className="mr-2" /> Sync Data
+            </LuminaButton>
+            <LuminaButton
               onClick={handleExport}
               disabled={exportLoading || records.length === 0}
-              whileTap={{ x: 3, y: 3 }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: exportLoading || records.length === 0 ? '#ccc' : 'var(--brand-yellow)',
-                color: '#000',
-                border: '3px solid #000',
-                borderRadius: '0px',
-                boxShadow: exportLoading || records.length === 0 ? 'none' : '5px 5px 0px 0px #000',
-                padding: '0.55rem 1rem',
-                fontFamily: "'Montserrat', sans-serif",
-                fontWeight: 900,
-                fontSize: '0.78rem',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                cursor: exportLoading || records.length === 0 ? 'not-allowed' : 'pointer',
-                transition: 'box-shadow 0.1s',
-              }}
+              variant="primary"
             >
-              <Download size={14} strokeWidth={3} />
-              {exportLoading ? 'Exporting...' : 'CSV Export'}
-            </motion.button>
+              <Download size={14} className="mr-2" />
+              {exportLoading ? 'Exporting...' : 'Export CSV'}
+            </LuminaButton>
           </div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          {/* Event Header */}
-          <div className="brutal-card" style={{ background: '#000', color: '#fff', marginBottom: '1.5rem' }}>
-            <div
-              style={{
-                background: 'var(--brand-yellow)',
-                color: '#000',
-                padding: '0.2rem 0.6rem',
-                display: 'inline-block',
-                fontSize: '0.65rem',
-                fontWeight: 900,
-                letterSpacing: '1.5px',
-                marginBottom: '0.5rem',
-                border: '2px solid #fff',
-              }}
-            >
-              ATTENDANCE STATS
+        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
+          {/* Main Stats Header */}
+          <div className="lumina-card !p-10 mb-8 overflow-hidden relative">
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 text-blue-600 font-extrabold text-[10px] tracking-[0.2em] uppercase mb-4">
+                <div className="w-4 h-[2px] bg-blue-600" />
+                INSIGHTS ENGINE
+              </div>
+              <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter mb-2">{event?.eventName}</h1>
+              <div className="flex items-center gap-4 text-gray-500 font-bold text-sm">
+                <div className="flex items-center gap-1.5"><Calendar size={14} /> {event?.eventDate}</div>
+                <div className="w-1 h-1 bg-gray-300 rounded-full" />
+                <div className="flex items-center gap-1.5"><Users size={14} /> Admin Controlled</div>
+              </div>
             </div>
-            <h1 style={{ margin: '0 0 0.25rem', fontSize: '2rem', color: '#fff' }}>{event?.eventName}</h1>
-            <p style={{ margin: 0, opacity: 0.6, fontWeight: 700, fontSize: '0.9rem' }}>{event?.eventDate}</p>
+            <div className="absolute top-[-40px] right-[-40px] w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-40" />
           </div>
 
-          {/* Stat Cards */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '1rem',
-              marginBottom: '1.5rem',
-            }}
-          >
+          {/* Stat Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {statCards.map((s, i) => (
               <motion.div
                 key={s.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                style={{
-                  background: s.color,
-                  color: s.textColor,
-                  border: 'var(--brutal-border)',
-                  boxShadow: 'var(--brutal-shadow)',
-                  padding: '1.25rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                }}
+                transition={{ delay: i * 0.1 }}
+                className="lumina-card flex flex-col gap-3 group hover:shadow-xl transition-shadow duration-300"
+                style={{ borderLeft: `4px solid ${s.color}` }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: 0.8, fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  {s.icon} {s.label}
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-300" style={{ backgroundColor: `${s.color}15` }}>
+                  {/* Re-cloning icon to apply color */}
+                  {Object.assign({}, s.icon, { props: { ...s.icon.props, color: s.color } })}
                 </div>
-                <div style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1 }}>{s.value ?? 0}</div>
+                <div className="text-4xl font-extrabold text-gray-900 leading-none tracking-tight">{s.value ?? 0}</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400">
+                  {s.label}
+                </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Completion Bar */}
-          <div className="brutal-card" style={{ marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <span style={{ fontWeight: 900, fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                Full Completion Rate
-              </span>
-              <span style={{ fontWeight: 900, fontSize: '1.5rem' }}>{completionRate}%</span>
+          {/* Completion Progress */}
+          <div className="lumina-card mb-8">
+            <div className="flex justify-between items-end mb-4">
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Ecosystem Saturation</h4>
+                <div className="text-sm font-bold text-gray-900">Full Participant Lifecycle Completion</div>
+              </div>
+              <div className="text-3xl font-black text-blue-600 leading-none">{completionRate}%</div>
             </div>
-            <div style={{ height: '20px', border: 'var(--brutal-border)', background: '#f0f0f0', position: 'relative' }}>
+            <div className="h-3 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${completionRate}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                style={{ height: '100%', background: 'var(--brand-purple)', position: 'absolute', left: 0, top: 0 }}
+                transition={{ duration: 1, ease: 'circOut' }}
+                className="h-full bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.3)]"
               />
             </div>
           </div>
 
           {/* Attendance Table */}
-          <div className="brutal-card">
-            <h2 style={{ margin: '0 0 1rem', fontSize: '1.2rem' }}>PARTICIPANT RECORDS</h2>
+          <div className="lumina-card !p-0 overflow-hidden shadow-xl border border-gray-100">
+            <div className="p-6 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
+              <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Participant Registry</h2>
+              <div className="text-[10px] font-bold text-gray-400">{records.length} Total Records</div>
+            </div>
 
             {records.length === 0 ? (
-              <p style={{ opacity: 0.5, fontWeight: 600 }}>No participants have checked in yet.</p>
+              <div className="p-16 text-center">
+                <Users size={32} className="text-gray-200 mx-auto mb-4" />
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Registry is currently empty</p>
+              </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                   <thead>
-                    <tr>
-                      {['#', 'Name', 'Check-In Time', 'Check-Out Time', 'Status'].map((h) => (
+                    <tr className="bg-white">
+                      {['#', 'Participant', 'Check-In', 'Check-Out', 'Lifecycle'].map((h) => (
                         <th
                           key={h}
-                          style={{
-                            border: 'var(--brutal-border)',
-                            padding: '0.6rem 0.8rem',
-                            background: '#000',
-                            color: 'var(--brand-yellow)',
-                            fontWeight: 900,
-                            textAlign: 'left',
-                            fontSize: '0.7rem',
-                            letterSpacing: '1px',
-                            textTransform: 'uppercase',
-                          }}
+                          className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left border-b border-gray-100"
                         >
                           {h}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-50">
                     {records.map((r, i) => (
-                      <tr
-                        key={r._id}
-                        style={{ background: i % 2 === 0 ? '#fff' : 'var(--bg-primary)' }}
-                      >
-                        <td style={{ border: 'var(--brutal-border)', padding: '0.6rem 0.8rem', fontWeight: 700 }}>{i + 1}</td>
-                        <td style={{ border: 'var(--brutal-border)', padding: '0.6rem 0.8rem', fontWeight: 700 }}>{r.participantName}</td>
-                        <td style={{ border: 'var(--brutal-border)', padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontWeight: 600 }}>
+                      <tr key={r._id} className="hover:bg-blue-50/30 transition-colors duration-200">
+                        <td className="px-6 py-4 text-[11px] font-bold text-gray-400">{(i + 1).toString().padStart(2, '0')}</td>
+                        <td className="px-6 py-4">
+                          <div className="font-extrabold text-sm text-gray-900 tracking-tight">{r.participantName}</div>
+                        </td>
+                        <td className="px-6 py-4 text-[11px] font-bold text-gray-500 font-mono">
                           {r.checkInStart ? formatTime(r.checkInStartTime) : '—'}
                         </td>
-                        <td style={{ border: 'var(--brutal-border)', padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontWeight: 600 }}>
+                        <td className="px-6 py-4 text-[11px] font-bold text-gray-500 font-mono">
                           {r.checkInEnd ? formatTime(r.checkInEndTime) : '—'}
                         </td>
-                        <td style={{ border: 'var(--brutal-border)', padding: '0.6rem 0.8rem' }}>
+                        <td className="px-6 py-4">
                           <span
-                            className="badge"
-                            style={{
-                              background: r.isComplete
-                                ? '#00C853'
+                            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                              r.isComplete
+                                ? 'bg-green-50 text-green-600 border-green-100'
                                 : r.checkInStart
-                                ? 'var(--brand-yellow)'
-                                : '#eee',
-                              color: '#000',
-                              fontSize: '0.65rem',
-                            }}
+                                ? 'bg-amber-50 text-amber-600 border-amber-100'
+                                : 'bg-gray-50 text-gray-400 border-gray-100'
+                            }`}
                           >
-                            {r.isComplete ? '✓ Complete' : r.checkInStart ? '→ In' : '○ Absent'}
+                            {r.isComplete ? 'Complete' : r.checkInStart ? 'Active' : 'Absent'}
                           </span>
                         </td>
                       </tr>

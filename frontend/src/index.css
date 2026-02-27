@@ -1,17 +1,28 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────
-   NEO-BRUTALISM DESIGN TOKENS
+   LUMINA MODERN DESIGN TOKENS
 ───────────────────────────────────────── */
 :root {
-  --bg-primary: #FCFAF5;
-  --text-main: #000000;
-  --brand-purple: #B642FF;
-  --brand-yellow: #F7D61D;
-  --accent-red: #E60000;
-  --brutal-border: 3px solid #000000;
-  --brutal-shadow: 5px 5px 0px 0px #000000;
-  --brutal-shadow-sm: 3px 3px 0px 0px #000000;
+  --bg-primary: #FFFFFF;
+  --bg-surface: #F9FAFB;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --action-blue: #2563EB;
+  --action-blue-hover: #1D4ED8;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+
+  --lumina-border: 1px solid var(--gray-200);
+  --lumina-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --lumina-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --lumina-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --lumina-inner-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 }
 
 /* ─────────────────────────────────────────
@@ -29,9 +40,9 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Montserrat', system-ui, sans-serif;
-  font-weight: 700;
-  background-color: var(--bg-primary);
+  font-family: 'Inter', 'Montserrat', system-ui, sans-serif;
+  font-weight: 500;
+  background-color: var(--bg-surface);
   color: var(--text-main);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -51,47 +62,58 @@ h4,
 h5,
 h6 {
   font-family: 'Montserrat', sans-serif;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: -0.5px;
-  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
 }
 
 /* ─────────────────────────────────────────
    BRUTALIST UTILITY CLASSES
 ───────────────────────────────────────── */
-.brutal-card {
-  border: var(--brutal-border);
-  box-shadow: var(--brutal-shadow);
-  border-radius: 0;
+/* ─────────────────────────────────────────
+   LUMINA UTILITY CLASSES
+───────────────────────────────────────── */
+.lumina-card {
+  border: var(--lumina-border);
+  box-shadow: var(--lumina-shadow);
+  border-radius: var(--radius-md);
   background: #fff;
   padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.brutal-card-yellow {
-  border: var(--brutal-border);
-  box-shadow: var(--brutal-shadow);
-  border-radius: 0;
-  background: var(--brand-yellow);
-  padding: 1.5rem;
+.lumina-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--lumina-shadow-lg);
 }
 
-.brutal-input {
-  border: var(--brutal-border);
-  box-shadow: var(--brutal-shadow-sm);
-  border-radius: 0;
+.lumina-input {
+  border: var(--lumina-border);
+  border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.95rem;
   outline: none;
   width: 100%;
   background: #fff;
-  transition: box-shadow 0.1s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--text-main);
 }
 
-.brutal-input:focus {
-  box-shadow: 7px 7px 0px 0px #000;
+.lumina-input:focus {
+  border-color: var(--action-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: var(--lumina-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 /* ─────────────────────────────────────────
@@ -235,4 +257,116 @@ h6 {
     font-size: 0.9rem !important;
     margin-bottom: 1.5rem !important;
   }
+}
+
+/* =========================================================================
+   MODERN "ALIVE" UI/UX EFFECTS (Event Cards & Buttons)
+   ========================================================================= */
+
+/* --- The "Alive" Card --- */
+.alive-card {
+  position: relative;
+  background-color: #ffffff;
+  /* Base color unchanged */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  /* Two shadows: sharp inner edge + soft outer elevation */
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  /* To contain the light overlay */
+}
+
+/* The Luster / Light Source Overlay */
+.alive-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* A semi-transparent white gradient simulating light from top-left */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.02) 100%);
+  mix-blend-mode: overlay;
+  /* The "Luster" effect */
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.alive-card:hover {
+  /* Lift and slightly scale */
+  transform: translateY(-4px) scale(1.02);
+  /* Enhance both shadows on hover */
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.06),
+    0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+.alive-card:hover::before {
+  opacity: 1;
+  /* Reveal the light overlay */
+}
+
+/* --- The "Alive" Button --- */
+.alive-button {
+  position: relative;
+  /* Base color is set inline or by a specific class, keeping it unchanged */
+  border: none;
+  overflow: hidden;
+  /* Contain the inset/overlay */
+  /* Soft base shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  z-index: 1;
+  /* Establish stacking context for ::before */
+}
+
+/* Light Overlay for Color Blending */
+.alive-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0) 100%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+/* Inner shadow to simulate light hitting the top edge */
+.alive-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+.alive-button:hover {
+  /* Subtle scale up and fluid organic feel */
+  transform: scale(1.02);
+  /* Lift the shadow */
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.alive-button:hover::before {
+  opacity: 1;
+  /* Make it glow slightly */
+}
+
+.alive-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }

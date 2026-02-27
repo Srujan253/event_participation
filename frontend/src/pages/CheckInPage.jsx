@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Loader, QrCode, LogIn, LogOut } from 'lucide-react';
-import BrutalButton from '../components/BrutalButton';
+import LuminaButton from '../components/LuminaButton';
+import { LogIn, LogOut, Loader, XCircle, CheckCircle } from 'lucide-react';
 import { verifyToken, submitCheckin } from '../api';
 
 export default function CheckInPage() {
@@ -56,7 +56,7 @@ export default function CheckInPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'var(--bg-primary)',
+          background: 'var(--bg-surface)',
         }}
       >
         <motion.div
@@ -84,10 +84,10 @@ export default function CheckInPage() {
         }}
       >
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="brutal-card"
-          style={{ maxWidth: '400px', width: '100%', textAlign: 'center' }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="lumina-card"
+          style={{ maxWidth: '400px', width: '100%', textAlign: 'center', padding: '3rem 2rem' }}
         >
           <XCircle size={48} color="var(--accent-red)" style={{ margin: '0 auto 1rem' }} />
           <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>INVALID QR</h1>
@@ -114,11 +114,10 @@ export default function CheckInPage() {
         }}
       >
         <motion.div
-          initial={{ scale: 0.7, opacity: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          className="brutal-card"
-          style={{ maxWidth: '420px', width: '100%', textAlign: 'center' }}
+          className="lumina-card shadow-xl"
+          style={{ maxWidth: '420px', width: '100%', textAlign: 'center', padding: '3rem 2rem' }}
         >
           {result.success ? (
             <CheckCircle size={56} color="#000" style={{ margin: '0 auto 1rem' }} />
@@ -141,11 +140,12 @@ export default function CheckInPage() {
           </p>
 
           <div
+            className="rounded-xl overflow-hidden mb-6"
             style={{
-              background: '#000',
+              background: 'var(--action-blue)',
               color: '#fff',
-              padding: '0.5rem',
-              fontSize: '0.75rem',
+              padding: '0.75rem',
+              fontSize: '0.8rem',
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '1px',
@@ -156,9 +156,9 @@ export default function CheckInPage() {
 
           {!result.success && (
             <div style={{ marginTop: '1rem' }}>
-              <BrutalButton onClick={() => setResult(null)} variant="black" fullWidth>
+              <LuminaButton onClick={() => setResult(null)} variant="secondary" fullWidth>
                 Try Again
-              </BrutalButton>
+              </LuminaButton>
             </div>
           )}
         </motion.div>
@@ -169,26 +169,20 @@ export default function CheckInPage() {
   // Main form
   return (
     <div
-      className="bg-grid"
       style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: isCheckIn ? 'var(--bg-primary)' : '#f5f0ff',
+        background: 'var(--bg-surface)',
         padding: '1.5rem',
       }}
     >
-      {/* Decorative corner */}
+      {/* Refined gradient background element */}
       <div
+        className="fixed top-[-100px] right-[-100px] w-[300px] h-[300px] blur-[120px] rounded-full opacity-20 pointer-events-none"
         style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          width: '120px',
-          height: '120px',
-          background: isCheckIn ? 'var(--brand-yellow)' : 'var(--brand-purple)',
-          border: 'var(--brutal-border)',
+          background: isCheckIn ? 'var(--action-blue)' : '#8B5CF6',
           zIndex: 0,
         }}
       />
@@ -199,66 +193,47 @@ export default function CheckInPage() {
         style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px' }}
       >
         {/* Header badge */}
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: isCheckIn ? '#000' : 'var(--brand-purple)',
-              color: isCheckIn ? 'var(--brand-yellow)' : '#fff',
-              padding: '0.6rem 1.2rem',
-              border: 'var(--brutal-border)',
-              boxShadow: 'var(--brutal-shadow)',
-            }}
+            className="inline-flex items-center gap-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-100"
           >
-            {isCheckIn ? <LogIn size={18} /> : <LogOut size={18} />}
-            <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '2px' }}>
-              {isCheckIn ? 'CHECK-IN' : 'CHECK-OUT'}
+            <div className={`p-1.5 rounded-full ${isCheckIn ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+              {isCheckIn ? <LogIn size={16} /> : <LogOut size={16} />}
+            </div>
+            <span className="font-bold text-xs tracking-widest text-gray-800">
+              {isCheckIn ? 'SESSION CHECK-IN' : 'SESSION CHECK-OUT'}
             </span>
           </div>
         </div>
 
-        <div className="brutal-card" style={{ background: '#fff' }}>
+        <div className="lumina-card !p-0 overflow-hidden shadow-2xl">
           {/* Event Info */}
           <div
+            className="p-8 border-b border-gray-100"
             style={{
-              background: isCheckIn ? 'var(--brand-yellow)' : 'var(--brand-purple)',
-              color: isCheckIn ? '#000' : '#fff',
-              padding: '1rem',
-              border: 'var(--brutal-border)',
-              marginBottom: '1.5rem',
-              marginTop: '-0.5rem',
-              marginLeft: '-0.5rem',
-              marginRight: '-0.5rem',
+              background: isCheckIn 
+                ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.02) 100%)' 
+                : 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.02) 100%)',
             }}
           >
-            <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 900, letterSpacing: '2px', opacity: 0.7 }}>
+            <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-2">
               {eventInfo?.eventDate}
             </p>
-            <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.3rem', color: isCheckIn ? '#000' : '#fff' }}>
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight leading-tight">
               {eventInfo?.eventName}
             </h2>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '0.75rem',
-                  fontWeight: 900,
-                  letterSpacing: '1px',
-                  marginBottom: '0.4rem',
-                  textTransform: 'uppercase',
-                }}
-              >
+              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">
                 YOUR FULL NAME
               </label>
               <input
-                className="brutal-input"
+                className="lumina-input"
                 type="text"
-                placeholder="Enter your name exactly as registered"
+                placeholder="How should we address you?"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -272,21 +247,23 @@ export default function CheckInPage() {
                 : '✅ Your departure will be recorded when you submit.'}
             </p>
 
-            <BrutalButton
+            <LuminaButton
               type="submit"
-              variant={isCheckIn ? 'yellow' : 'purple'}
+              variant="primary"
               disabled={submitting || !name.trim()}
               fullWidth
+              className={isCheckIn ? '' : '!bg-purple-600 !shadow-purple-100 hover:!bg-purple-700'}
             >
               {submitting ? (
-                'Submitting...'
+                'Syncing...'
               ) : isCheckIn ? (
-                <><LogIn size={16} /> Mark My Check-In</>
+                <><LogIn size={18} /> Confirm Attendance</>
               ) : (
-                <><LogOut size={16} /> Mark My Check-Out</>
+                <><LogOut size={18} /> Confirm Departure</>
               )}
-            </BrutalButton>
+            </LuminaButton>
           </form>
+          </div>
         </div>
 
         <p

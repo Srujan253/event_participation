@@ -15,6 +15,7 @@ import {
   createSuperAdmin,
   listSuperAdmins,
 } from '../api';
+import LuminaButton from '../components/LuminaButton';
 
 // ─── Sidebar Nav Items ────────────────────────────────────────────────────────
 const NAV = [
@@ -30,67 +31,41 @@ function StatCard({ label, value, icon: Icon, accent }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      style={{
-        background: accent, border: '3px solid #CBD5E1', boxShadow: '6px 6px 0 #E2E8F0',
-        padding: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem',
-      }}
+      className="lumina-card flex flex-col gap-3"
+      style={{ borderLeft: `4px solid ${accent}` }}
     >
-      <Icon size={28} strokeWidth={3} color="#475569" />
-      <div style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1, color: '#1E293B' }}>{value ?? '—'}</div>
-      <div style={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '2px', color: '#64748B' }}>
+      <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-1" style={{ backgroundColor: `${accent}20` }}>
+        <Icon size={20} color={accent} />
+      </div>
+      <div className="text-4xl font-extrabold text-gray-900 leading-none tracking-tight">{value ?? '—'}</div>
+      <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
         {label}
       </div>
     </motion.div>
   );
 }
 
-// ─── Brutal Button Helper ─────────────────────────────────────────────────────
-function Btn({ children, onClick, bg = '#6366F1', color = '#FFFFFF', disabled, type = 'button' }) {
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      style={{
-        background: disabled ? '#F1F5F9' : bg, color: disabled ? '#94A3B8' : color,
-        border: '2px solid #CBD5E1', boxShadow: disabled ? 'none' : '3px 3px 0 #E2E8F0',
-        padding: '0.45rem 0.9rem', fontFamily: "'Montserrat', sans-serif",
-        fontWeight: 900, fontSize: '0.72rem', textTransform: 'uppercase',
-        letterSpacing: '1px', cursor: disabled ? 'not-allowed' : 'pointer',
-        transition: 'transform 0.1s, box-shadow 0.1s', whiteSpace: 'nowrap',
-      }}
-      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = 'translate(-1px,-1px)'; e.currentTarget.style.boxShadow = '4px 4px 0 #E2E8F0'; } }}
-      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = disabled ? 'none' : '3px 3px 0 #E2E8F0'; }}
-    >
-      {children}
-    </button>
-  );
-}
+// ─── Button Replacement done via LuminaButton ───
 
 // ─── Input Helper ─────────────────────────────────────────────────────────────
-function BrutalInput({ label, name, type = 'text', value, onChange, required, extra }) {
+function LuminaInput({ label, name, type = 'text', value, onChange, required, extra }) {
   const [show, setShow] = useState(false);
   const isPass = type === 'password';
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-      <label style={{ fontSize: '0.68rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', color: '#64748B' }}>{label}</label>
-      <div style={{ position: 'relative' }}>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{label}</label>
+      <div className="relative">
         <input
           type={isPass && show ? 'text' : type}
           name={name} value={value} onChange={onChange} required={required}
-          style={{
-            width: '100%', padding: '0.6rem 0.8rem', border: '2px solid #CBD5E1',
-            borderRadius: 0, fontFamily: "'Montserrat', sans-serif", fontWeight: 700,
-            fontSize: '0.85rem', boxSizing: 'border-box', outline: 'none',
-            paddingRight: isPass ? '2.5rem' : '0.8rem', background: '#F8FAFC',
-            color: '#1E293B'
-          }}
+          className="lumina-input !py-2 !px-3 !text-sm"
+          style={{ paddingRight: isPass ? '2.5rem' : '0.75rem' }}
           {...extra}
         />
         {isPass && (
           <button type="button" onClick={() => setShow(s => !s)}
-            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, padding: 0 }}>
-            {show ? <EyeOff size={15} /> : <Eye size={15} />}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+            {show ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
         )}
       </div>
@@ -171,50 +146,37 @@ export default function SuperAdminDashboard() {
 
   // ─── Render ──────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: "'Montserrat', sans-serif", color: '#1E293B' }}>
+    <div className="flex min-h-screen bg-gray-50 font-['Inter',sans-serif] text-gray-900">
 
       {/* ── Sidebar ── */}
-      <aside style={{
-        width: '260px', flexShrink: 0, background: '#F1F5F9', color: '#1E293B',
-        display: 'flex', flexDirection: 'column',
-        borderRight: '3px solid #CBD5E1', position: 'sticky', top: 0, height: '100vh',
-      }}>
+      <aside className="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col sticky top-0 h-screen">
         {/* Brand */}
-        <div style={{ padding: '1.5rem', borderBottom: '2px solid #E2E8F0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6366F1' }}>
-            <Shield size={22} strokeWidth={3} />
-            <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '2px' }}>SUPER ADMIN</span>
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-blue-600">
+            <Shield size={22} strokeWidth={2.5} />
+            <span className="font-extrabold text-sm tracking-widest">SUPER ADMIN</span>
           </div>
-          <div style={{ marginTop: '0.4rem', fontSize: '0.73rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
+          <div className="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
             {adminInfo?.username || 'Admin'}
           </div>
         </div>
 
         {/* Nav */}
-        <nav style={{ flex: 1, padding: '1rem 0' }}>
+        <nav className="flex-1 py-4 px-3 overflow-y-auto">
           {NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: '0.8rem',
-                padding: '0.85rem 1.5rem',
-                background: activeTab === id ? '#E2E8F0' : 'transparent',
-                color: activeTab === id ? '#4338CA' : '#64748B',
-                border: 'none', borderLeft: activeTab === id ? '4px solid #6366F1' : '4px solid transparent',
-                cursor: 'pointer', fontFamily: "'Montserrat', sans-serif",
-                fontWeight: 900, fontSize: '0.78rem', textTransform: 'uppercase',
-                letterSpacing: '1px', textAlign: 'left', transition: 'all 0.15s',
-              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all mb-1 ${
+                activeTab === id 
+                  ? 'bg-blue-50 text-blue-600 shadow-sm shadow-blue-100' 
+                  : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+              }`}
             >
-              <Icon size={16} strokeWidth={activeTab === id ? 3 : 2} />
+              <Icon size={16} strokeWidth={activeTab === id ? 2.5 : 2} />
               {label}
               {id === 'requests' && requests.length > 0 && (
-                <span style={{
-                  marginLeft: 'auto', background: '#FDA4AF', color: '#881337',
-                  borderRadius: '0', fontSize: '0.65rem', fontWeight: 900,
-                  padding: '1px 6px', border: '1.5px solid #F43F5E',
-                }}>
+                <span className="ml-auto bg-red-100 text-red-600 rounded-full text-[10px] px-2 py-0.5 border border-red-200">
                   {requests.length}
                 </span>
               )}
@@ -223,18 +185,15 @@ export default function SuperAdminDashboard() {
         </nav>
 
         {/* Logout */}
-        <div style={{ padding: '1rem 1.5rem', borderTop: '2px solid #E2E8F0' }}>
-          <button
+        <div className="p-6 border-t border-gray-100">
+          <LuminaButton
+            variant="ghost"
+            fullWidth
             onClick={handleLogout}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: '0.6rem',
-              background: 'transparent', color: '#F43F5E', border: '2px solid #F43F5E',
-              padding: '0.7rem 1rem', cursor: 'pointer',
-              fontFamily: "'Montserrat', sans-serif", fontWeight: 900, fontSize: '0.78rem', textTransform: 'uppercase',
-            }}
+            className="!text-red-500 hover:!bg-red-50 !py-2.5"
           >
-            <LogOut size={15} /> Logout
-          </button>
+            <LogOut size={15} /> LOGOUT
+          </LuminaButton>
         </div>
       </aside>
 
@@ -245,17 +204,17 @@ export default function SuperAdminDashboard() {
           {/* ══ STATS TAB ══ */}
           {activeTab === 'stats' && (
             <motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <h1 style={{ fontWeight: 900, fontSize: '1.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Platform Stats</h1>
-              <p style={{ opacity: 0.5, fontWeight: 700, fontSize: '0.85rem', marginBottom: '2rem' }}>High-level overview of the platform.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                <StatCard label="Active Admins"    value={stats?.totalAdmins}     icon={Users}        accent="#E0E7FF" />
-                <StatCard label="Total Events"     value={stats?.totalEvents}     icon={CalendarDays} accent="#ECFDF5" />
-                <StatCard label="Pending Requests" value={stats?.pendingRequests} icon={Hourglass}    accent="#FFF1F2" />
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2 uppercase">Platform Performance</h1>
+              <p className="text-sm font-bold text-gray-400 mb-8 tracking-wide">ECOSYSTEM ANALYTICS & HUB OVERVIEW</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard label="Active Admins"    value={stats?.totalAdmins}     icon={Users}        accent="#2563EB" />
+                <StatCard label="Total Events"     value={stats?.totalEvents}     icon={CalendarDays} accent="#10B981" />
+                <StatCard label="Pending Requests" value={stats?.pendingRequests} icon={Hourglass}    accent="#F43F5E" />
               </div>
-              <div style={{ marginTop: '2rem' }}>
-                <Btn onClick={() => { fetchStats(); toast.success('Stats refreshed'); }} bg="#000">
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><RefreshCw size={12} /> Refresh</span>
-                </Btn>
+              <div className="mt-8">
+                <LuminaButton onClick={() => { fetchStats(); toast.success('SYNCED DATA'); }} variant="secondary">
+                  <RefreshCw size={14} className="mr-2" /> Sync Data
+                </LuminaButton>
               </div>
             </motion.div>
           )}
@@ -263,49 +222,69 @@ export default function SuperAdminDashboard() {
           {/* ══ PENDING REQUESTS TAB ══ */}
           {activeTab === 'requests' && (
             <motion.div key="requests" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.3rem' }}>
-                <h1 style={{ fontWeight: 900, fontSize: '1.8rem', textTransform: 'uppercase', margin: 0 }}>Pending Requests</h1>
-                <Btn onClick={() => { fetchRequests(); fetchStats(); toast.success('Requests refreshed'); }} bg="#000">
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><RefreshCw size={12} /> Refresh</span>
-                </Btn>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Access Gate</h1>
+                  <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wide">
+                    {requests.length} admin application{requests.length !== 1 ? 's' : ''} pending
+                  </p>
+                </div>
+                <LuminaButton onClick={() => { fetchRequests(); fetchStats(); toast.success('GATE SYNCED'); }} variant="secondary">
+                  <RefreshCw size={14} className="mr-2" /> Sync Gate
+                </LuminaButton>
               </div>
-              <p style={{ opacity: 0.5, fontWeight: 700, fontSize: '0.85rem', marginBottom: '2rem' }}>
-                {requests.length} request{requests.length !== 1 ? 's' : ''} awaiting approval.
-              </p>
+
               {requests.length === 0 ? (
-                <div style={{ border: '3px solid #E2E8F0', boxShadow: '5px 5px 0 #F1F5F9', padding: '3rem', textAlign: 'center', background: '#fff', maxWidth: '400px' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✨</div>
-                  <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#64748B' }}>All clear — no pending requests</div>
+                <div className="lumina-card text-center py-20 flex flex-col items-center">
+                  <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
+                    <CheckCircle size={32} className="text-green-500" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-gray-900 mb-2 uppercase tracking-tight">Access Log Clear</h3>
+                  <p className="text-gray-500 max-w-xs font-medium">All applications have been processed. Great work!</p>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   {requests.map((req) => (
                     <motion.div
                       key={req._id}
-                      initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                      style={{ background: '#fff', border: '3px solid #E2E8F0', boxShadow: '5px 5px 0 #F1F5F9', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+                      initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+                      className="lumina-card overflow-hidden !p-0"
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                        <div style={{ width: '36px', height: '36px', background: '#EEF2FF', border: '2px solid #E0E7FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem', color: '#6366F1' }}>
-                          {req.username[0].toUpperCase()}
+                      <div className="p-6">
+                        <div className="flex items-center gap-4 mb-6">
+                          <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center font-black text-blue-600 text-lg border border-blue-100">
+                            {req.username[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-extrabold text-gray-900 uppercase tracking-tight">{req.username}</div>
+                            <div className="text-xs font-bold text-gray-500">{req.email}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '0.9rem' }}>{req.username}</div>
-                          <div style={{ fontSize: '0.75rem', opacity: 0.6, fontWeight: 700 }}>{req.email}</div>
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Statement of Purpose</div>
+                          <div className="text-sm font-semibold text-gray-700 leading-relaxed">{req.purpose || '—'}</div>
                         </div>
+                        <div className="flex bg-white gap-2 mt-auto pt-6 border-t border-gray-100">
+                  <LuminaButton
+                    variant="primary"
+                    fullWidth
+                    onClick={() => handleRequest(req._id, 'approved')}
+                    disabled={loadingAction === req._id + 'approved'}
+                  >
+                    <CheckCircle size={14} className="mr-1" /> Approve
+                  </LuminaButton>
+                  <LuminaButton
+                    variant="danger"
+                    fullWidth
+                    onClick={() => handleRequest(req._id, 'rejected')}
+                    disabled={loadingAction === req._id + 'rejected'}
+                  >
+                    <XCircle size={14} className="mr-1" /> Reject
+                  </LuminaButton>
+                </div>
                       </div>
-                      <div style={{ background: '#F8FAFC', border: '2px solid #E2E8F0', padding: '0.6rem 0.8rem' }}>
-                        <div style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: '#64748B', marginBottom: '0.2rem' }}>Purpose</div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 700, lineHeight: 1.4, color: '#1E293B' }}>{req.purpose || '—'}</div>
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Applied: {new Date(req.createdAt).toLocaleDateString()}</div>
-                      <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.25rem' }}>
-                        <Btn bg="#10B981" color="#fff" onClick={() => handleRequest(req._id, 'approved')} disabled={loadingAction === req._id + 'approved'}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><CheckCircle size={13} /> Approve</span>
-                        </Btn>
-                        <Btn bg="#F43F5E" color="#fff" onClick={() => handleRequest(req._id, 'rejected')} disabled={loadingAction === req._id + 'rejected'}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><XCircle size={13} /> Reject</span>
-                        </Btn>
+                      <div className="bg-gray-50/50 px-6 py-3 border-t border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Submitted: {new Date(req.createdAt).toLocaleDateString()}
                       </div>
                     </motion.div>
                   ))}
@@ -346,9 +325,9 @@ export default function SuperAdminDashboard() {
                           </td>
                           <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8' }}>{new Date(admin.createdAt).toLocaleDateString()}</td>
                           <td style={{ padding: '0.85rem 1rem' }}>
-                            <Btn bg="#F43F5E" color="#fff" onClick={() => handleDelete(admin._id, admin.username)} disabled={loadingAction === 'del' + admin._id}>
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Trash2 size={12} /> Delete Admin</span>
-                            </Btn>
+                            <LuminaButton variant="danger" onClick={() => handleDelete(admin._id, admin.username)} disabled={loadingAction === 'del' + admin._id}>
+                              <Trash2 size={12} className="mr-1.5" /> Delete Admin
+                            </LuminaButton>
                           </td>
                         </tr>
                       ))}
@@ -379,23 +358,27 @@ export default function SuperAdminDashboard() {
                     </span>
                   </div>
                   <form onSubmit={handleCreateSuperAdmin} style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <BrutalInput
+                    <LuminaInput
                       label="Username" name="username" value={saForm.username} required
                       onChange={e => setSaForm(f => ({ ...f, username: e.target.value }))}
                     />
-                    <BrutalInput
+                    <LuminaInput
                       label="Email" name="email" type="email" value={saForm.email} required
                       onChange={e => setSaForm(f => ({ ...f, email: e.target.value }))}
                     />
-                    <BrutalInput
+                    <LuminaInput
                       label="Password" name="password" type="password" value={saForm.password} required
                       onChange={e => setSaForm(f => ({ ...f, password: e.target.value }))}
                     />
-                    <Btn type="submit" bg="#000" disabled={saLoading}>
-                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
-                        <UserPlus size={13} /> {saLoading ? 'Creating...' : 'Create Super Admin'}
-                      </span>
-                    </Btn>
+                    <LuminaButton
+                      type="submit"
+                      variant="primary"
+                      fullWidth
+                      disabled={saLoading}
+                    >
+                      <UserPlus size={16} className="mr-2" />
+                      {saLoading ? 'Provisioning...' : 'Provision Super Admin'}
+                    </LuminaButton>
                   </form>
                 </div>
 
@@ -405,9 +388,9 @@ export default function SuperAdminDashboard() {
                     <span style={{ fontWeight: 900, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                       {superAdmins.length} super admin{superAdmins.length !== 1 ? 's' : ''}
                     </span>
-                    <Btn onClick={() => { fetchSuperAdmins(); toast.success('List refreshed'); }} bg="#000">
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><RefreshCw size={12} /> Refresh</span>
-                    </Btn>
+                    <LuminaButton onClick={() => { fetchSuperAdmins(); toast.success('List refreshed'); }} variant="secondary">
+                      <RefreshCw size={12} className="mr-2" /> Sync Records
+                    </LuminaButton>
                   </div>
 
                   {superAdmins.length === 0 ? (

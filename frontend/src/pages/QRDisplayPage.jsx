@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
-import { ArrowLeft, Download, LogIn, LogOut } from 'lucide-react';
-import BrutalButton from '../components/BrutalButton';
+import { ArrowLeft, Download, LogIn, LogOut, CheckCircle2 } from 'lucide-react';
+import LuminaButton from '../components/LuminaButton';
 import { getEvent } from '../api';
 
 export default function QRDisplayPage() {
@@ -53,9 +53,15 @@ export default function QRDisplayPage() {
 
   if (!event) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '1rem' }}>
-        <p style={{ fontWeight: 900, fontSize: '1.2rem' }}>EVENT NOT FOUND</p>
-        <BrutalButton onClick={() => navigate('/')}><ArrowLeft size={14} /> Back</BrutalButton>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+        <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-2">
+          <ArrowLeft size={40} />
+        </div>
+        <div>
+          <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Access Revoked</h2>
+          <p className="text-gray-500 font-medium">This event is no longer reachable or was deleted.</p>
+        </div>
+        <LuminaButton onClick={() => navigate('/')} variant="secondary">Back to Dashboard</LuminaButton>
       </div>
     );
   }
@@ -64,111 +70,119 @@ export default function QRDisplayPage() {
   const checkOutUrl = `${baseUrl}/scan/${event.endQrToken}`;
 
   return (
-    <div className="bg-grid min-h-screen" style={{ background: 'var(--bg-primary)', padding: '1.5rem' }}>
-      <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+    <div className="min-h-screen bg-gray-50/50" style={{ padding: '2rem 1.5rem' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         {/* Back button */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <BrutalButton onClick={() => navigate('/')} variant="white">
-            <ArrowLeft size={14} /> Back to Dashboard
-          </BrutalButton>
+        <div className="mb-8">
+          <LuminaButton onClick={() => navigate('/')} variant="ghost" className="!pl-0 !text-gray-500 hover:!text-gray-900">
+            <ArrowLeft size={18} className="mr-2" /> Back to Terminal
+          </LuminaButton>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          {/* Event Header */}
-          <div className="brutal-card" style={{ background: '#000', color: '#fff', marginBottom: '1.5rem' }}>
-            <div
-              style={{
-                background: 'var(--brand-yellow)',
-                color: '#000',
-                padding: '0.25rem 0.6rem',
-                display: 'inline-block',
-                fontSize: '0.65rem',
-                fontWeight: 900,
-                letterSpacing: '1.5px',
-                marginBottom: '0.5rem',
-                border: '2px solid #fff',
-              }}
-            >
-              QR CODES
+        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
+          {/* Main Content Header */}
+          <div className="lumina-card !p-10 mb-8 overflow-hidden relative">
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] tracking-[0.2em] uppercase mb-4">
+                <div className="w-4 h-[2px] bg-blue-600" />
+                ASSET GENERATION
+              </div>
+              <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter mb-2">{event.eventName}</h1>
+              <p className="text-gray-500 font-bold flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-green-500" /> Event scheduled for {event.eventDate}
+              </p>
             </div>
-            <h1 style={{ margin: '0 0 0.25rem', fontSize: '2rem', color: '#fff' }}>{event.eventName}</h1>
-            <p style={{ margin: 0, opacity: 0.6, fontWeight: 700, fontSize: '0.9rem' }}>{event.eventDate}</p>
+            
+            <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-blue-50 rounded-full blur-3xl opacity-50" />
           </div>
 
-          <p style={{ fontWeight: 700, fontSize: '0.85rem', opacity: 0.65, marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            📱 Share these QR codes with participants. Check-In first, then Check-Out at the end.
-          </p>
+          <div className="bg-white/60 backdrop-blur-sm border border-blue-100 rounded-2xl p-6 mb-10 flex items-start gap-4 shadow-sm shadow-blue-50/50">
+            <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
+              <QRCodeSVG value="icon" size={24} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-gray-900 mb-1 uppercase tracking-tight">Participant Portal Access</h4>
+              <p className="text-sm text-gray-500 font-medium leading-relaxed">
+                Download and print these unique assets. Participants only need to scan to mark their participation status instantly.
+              </p>
+            </div>
+          </div>
 
           {/* QR Cards Grid */}
-          <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Check-In QR */}
-            <div className="brutal-card" style={{ background: 'var(--brand-yellow)', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <LogIn size={20} />
-                <h2 style={{ margin: 0, fontSize: '1.3rem' }}>CHECK-IN QR</h2>
+            <div className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
+              <div className="w-full flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 border border-blue-100/50">
+                    <LogIn size={22} />
+                  </div>
+                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter">Check-In</h2>
+                </div>
+                <div className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded tracking-widest uppercase">GATE 01</div>
               </div>
 
-              <div
-                style={{
-                  display: 'inline-block',
-                  background: '#fff',
-                  padding: '1rem',
-                  border: 'var(--brutal-border)',
-                  boxShadow: 'var(--brutal-shadow)',
-                  marginBottom: '1rem',
-                }}
-              >
+              <div className="relative mb-8 p-6 bg-gray-50 rounded-3xl border border-gray-100 group-hover:bg-white transition-colors duration-500">
                 <QRCodeSVG
                   id="qr-checkin"
                   value={checkInUrl}
-                  size={200}
+                  size={240}
                   level="H"
                   includeMargin={false}
+                  className="relative z-10"
                 />
               </div>
 
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, wordBreak: 'break-all', opacity: 0.7, marginBottom: '1rem', fontFamily: 'monospace' }}>
-                {checkInUrl}
-              </p>
+              <div className="w-full bg-gray-50 rounded-xl p-4 mb-8 border border-gray-100">
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-1">Direct Access Link</div>
+                <p className="text-[11px] font-bold text-gray-600 break-all family-mono opacity-80">
+                  {checkInUrl}
+                </p>
+              </div>
 
-              <BrutalButton variant="black" fullWidth onClick={() => downloadQR('checkin', event.startQrToken)}>
-                <Download size={14} /> Download PNG
-              </BrutalButton>
+              <LuminaButton variant="primary" fullWidth onClick={() => downloadQR('checkin', event.startQrToken)}>
+                <Download size={16} /> DOWNLOAD ASSET
+              </LuminaButton>
             </div>
 
             {/* Check-Out QR */}
-            <div className="brutal-card" style={{ background: 'var(--brand-purple)', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem', color: '#fff' }}>
-                <LogOut size={20} color="#fff" />
-                <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#fff' }}>CHECK-OUT QR</h2>
+            <div className="lumina-card group hover:shadow-2xl transition-all duration-500 !p-8 flex flex-col items-center">
+              <div className="w-full flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-purple-50 rounded-xl text-purple-600 border border-purple-100/50">
+                    <LogOut size={22} />
+                  </div>
+                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter">Check-Out</h2>
+                </div>
+                <div className="text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-1 rounded tracking-widest uppercase">GATE 02</div>
               </div>
 
-              <div
-                style={{
-                  display: 'inline-block',
-                  background: '#fff',
-                  padding: '1rem',
-                  border: '3px solid #fff',
-                  boxShadow: '5px 5px 0px 0px rgba(255,255,255,0.5)',
-                  marginBottom: '1rem',
-                }}
-              >
+              <div className="relative mb-8 p-6 bg-gray-50 rounded-3xl border border-gray-100 group-hover:bg-white transition-colors duration-500">
                 <QRCodeSVG
                   id="qr-checkout"
                   value={checkOutUrl}
-                  size={200}
+                  size={240}
                   level="H"
                   includeMargin={false}
+                  className="relative z-10"
                 />
               </div>
 
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, wordBreak: 'break-all', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem', fontFamily: 'monospace' }}>
-                {checkOutUrl}
-              </p>
+              <div className="w-full bg-gray-50 rounded-xl p-4 mb-8 border border-gray-100">
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-1">Direct Access Link</div>
+                <p className="text-[11px] font-bold text-gray-600 break-all family-mono opacity-80">
+                  {checkOutUrl}
+                </p>
+              </div>
 
-              <BrutalButton variant="yellow" fullWidth onClick={() => downloadQR('checkout', event.endQrToken)}>
-                <Download size={14} /> Download PNG
-              </BrutalButton>
+              <LuminaButton 
+                variant="primary" 
+                fullWidth 
+                onClick={() => downloadQR('checkout', event.endQrToken)}
+                className="!bg-purple-600 !shadow-purple-100 hover:!bg-purple-700"
+              >
+                <Download size={16} /> DOWNLOAD ASSET
+              </LuminaButton>
             </div>
           </div>
         </motion.div>

@@ -30,16 +30,16 @@ const SuperAdminRoute = ({ children }) => {
   return children;
 };
 
-// Neo-Brutalist Toaster config
+// Lumina Modern Toaster config
 const toastStyle = {
-  border: '3px solid #000',
-  borderRadius: '0px',
-  boxShadow: '5px 5px 0px #000',
-  background: '#FCFAF5',
-  color: '#000',
-  fontWeight: '900',
-  textTransform: 'uppercase',
-  fontFamily: "'Montserrat', sans-serif",
+  border: '1px solid var(--gray-200)',
+  borderRadius: 'var(--radius-md)',
+  boxShadow: 'var(--lumina-shadow)',
+  background: '#FFFFFF',
+  color: 'var(--text-main)',
+  fontWeight: '600',
+  fontSize: '0.9rem',
+  fontFamily: "'Inter', sans-serif",
 };
 
 function App() {
@@ -50,8 +50,14 @@ function App() {
         toastOptions={{
           duration: 3500,
           style: toastStyle,
-          success: { iconTheme: { primary: '#000', secondary: '#FFE500' } },
-          error: { iconTheme: { primary: '#ff0000', secondary: '#fff' } },
+          success: { 
+            iconTheme: { primary: 'var(--action-blue)', secondary: '#fff' },
+            style: { ...toastStyle, borderLeft: '4px solid var(--action-blue)' }
+          },
+          error: { 
+            iconTheme: { primary: '#EF4444', secondary: '#fff' },
+            style: { ...toastStyle, borderLeft: '4px solid #EF4444' }
+          },
         }}
       />
       <Routes>
