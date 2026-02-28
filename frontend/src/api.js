@@ -142,3 +142,19 @@ export const createSuperAdmin = (data) =>
 export const listSuperAdmins = () =>
   fetch(`${API_BASE}/superadmin/superadmins`, { headers: authHeaders() }).then((r) => r.json());
 
+export const requestPasswordReset = (data) =>
+  fetch(`${API_BASE}/auth/reset-password-request`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  }).then((r) => r.json());
+
+export const getSuperAdminPasswordRequests = () =>
+  fetch(`${API_BASE}/superadmin/password-requests`, { headers: authHeaders() }).then((r) => r.json());
+
+export const updatePasswordRequest = (id, status) =>
+  fetch(`${API_BASE}/superadmin/password-requests/${id}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ status }),
+  }).then((r) => r.json());

@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
+import PasswordResetRequest from '../models/PasswordResetRequest.js';
 import protect from '../middleware/auth.js';
 
 const router = express.Router();
@@ -95,6 +96,44 @@ router.get('/me', protect, async (req, res) => {
     res.json(admin);
   } catch (err) {
     console.error('[ME ERROR]', err);
+    res.status(500).json({ message: 'Server error.', error: err.message });
+  }
+});
+
+// @route  POST /api/auth/reset-password-request
+// @desc   Submit a request to super admin to change password
+// @access Protected
+router.post('/reset-password-request', protect, async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'A new password of at least 6 characters is required.' });
+    }
+
+    // Check if there's already a pending request
+    const existingRequest = await PasswordResetRequest.findOne({
+      adminId: req.admin.id,
+      status: 'pending',
+    });
+
+    if (existingRequest) {
+      return res.status(409).json({ message: 'You already have a pending password reset request.' });
+    }
+
+    const resetRequest = new PasswordResetRequest({
+      adminId: req.admin.id,
+      newPassword,
+      status: 'pending',
+    });
+
+    await resetRequest.save();
+
+    res.status(202).json({
+      message: 'Password reset request submitted successfully.',
+    });
+  } catch (err) {
+    console.error('[RESET PASSWORD REQUEST ERROR]', err);
     res.status(500).json({ message: 'Server error.', error: err.message });
   }
 });

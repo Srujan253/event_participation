@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Users, Clock, LogOut, CheckCircle, XCircle,
-  Trash2, RefreshCw, Shield, CalendarDays, Hourglass, UserPlus, Eye, EyeOff,
+  Trash2, RefreshCw, Shield, CalendarDays, Hourglass, UserPlus, Eye, EyeOff, Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -14,6 +14,8 @@ import {
   deleteSuperAdminAdmin,
   createSuperAdmin,
   listSuperAdmins,
+  getSuperAdminPasswordRequests,
+  updatePasswordRequest,
 } from '../api';
 import LuminaButton from '../components/LuminaButton';
 import Magnetic from '../components/Magnetic';
@@ -22,6 +24,7 @@ import Magnetic from '../components/Magnetic';
 const NAV = [
   { id: 'stats',       label: 'Platform Stats',   icon: LayoutDashboard },
   { id: 'requests',    label: 'Pending Requests',  icon: Clock },
+  { id: 'passrecs',    label: 'Password Resets',   icon: Lock },
   { id: 'admins',      label: 'Active Admins',     icon: Users },
   { id: 'superadmins', label: 'Super Admins',      icon: Shield },
 ];
@@ -65,7 +68,7 @@ function LuminaInput({ label, name, type = 'text', value, onChange, required, ex
         />
         {isPass && (
           <button type="button" onClick={() => setShow(s => !s)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
             {show ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
         )}
@@ -79,6 +82,7 @@ export default function SuperAdminDashboard() {
   const [activeTab, setActiveTab] = useState('stats');
   const [stats, setStats]         = useState(null);
   const [requests, setRequests]   = useState([]);
+  const [passRequests, setPassRequests] = useState([]);
   const [admins, setAdmins]       = useState([]);
   const [superAdmins, setSuperAdmins] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null);
@@ -95,12 +99,13 @@ export default function SuperAdminDashboard() {
 
   const fetchStats        = useCallback(async () => { try { setStats(await getSuperAdminStats()); }        catch { toast.error('Failed to load stats'); } }, []);
   const fetchRequests     = useCallback(async () => { try { setRequests(await getSuperAdminRequests()); }  catch { toast.error('Failed to load requests'); } }, []);
+  const fetchPassRequests = useCallback(async () => { try { setPassRequests(await getSuperAdminPasswordRequests()); } catch { toast.error('Failed to load pass requests'); } }, []);
   const fetchAdmins       = useCallback(async () => { try { setAdmins(await getSuperAdminAdmins()); }      catch { toast.error('Failed to load admins'); } }, []);
   const fetchSuperAdmins  = useCallback(async () => { try { setSuperAdmins(await listSuperAdmins()); }     catch { toast.error('Failed to load super admins'); } }, []);
 
   useEffect(() => {
-    fetchStats(); fetchRequests(); fetchAdmins(); fetchSuperAdmins();
-  }, [fetchStats, fetchRequests, fetchAdmins, fetchSuperAdmins]);
+    fetchStats(); fetchRequests(); fetchAdmins(); fetchSuperAdmins(); fetchPassRequests();
+  }, [fetchStats, fetchRequests, fetchAdmins, fetchSuperAdmins, fetchPassRequests]);
 
   const handleRequest = async (id, status) => {
     setLoadingAction(id + status);
@@ -108,6 +113,16 @@ export default function SuperAdminDashboard() {
       await updateAdminRequest(id, status);
       toast.success(`Admin ${status.toUpperCase()}!`);
       await Promise.all([fetchRequests(), fetchAdmins(), fetchStats()]);
+    } catch { toast.error('Action failed'); }
+    finally { setLoadingAction(null); }
+  };
+
+  const handlePassRequest = async (id, status) => {
+    setLoadingAction('pass' + id + status);
+    try {
+      await updatePasswordRequest(id, status);
+      toast.success(`Password Reset ${status.toUpperCase()}!`);
+      await fetchPassRequests();
     } catch { toast.error('Action failed'); }
     finally { setLoadingAction(null); }
   };
@@ -205,7 +220,7 @@ export default function SuperAdminDashboard() {
                 show: { opacity: 1, x: 0 }
               }}
               onClick={() => setActiveTab(id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all mb-1 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all mb-1 cursor-pointer ${
                 activeTab === id 
                   ? 'bg-blue-50 text-blue-600 shadow-sm shadow-blue-100' 
                   : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
@@ -216,6 +231,11 @@ export default function SuperAdminDashboard() {
               {id === 'requests' && requests.length > 0 && (
                 <span className="ml-auto bg-red-100 text-red-600 rounded-full text-[10px] px-2 py-0.5 border border-red-200">
                   {requests.length}
+                </span>
+              )}
+              {id === 'passrecs' && passRequests.length > 0 && (
+                <span className="ml-auto bg-orange-100 text-orange-600 rounded-full text-[10px] px-2 py-0.5 border border-orange-200">
+                  {passRequests.length}
                 </span>
               )}
             </motion.button>
@@ -360,6 +380,97 @@ export default function SuperAdminDashboard() {
                       </div>
                       <div className="bg-gray-50/50 px-6 py-3 border-t border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                         Submitted: {new Date(req.createdAt).toLocaleDateString()}
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* ══ PASSWORD RESETS TAB ══ */}
+          {activeTab === 'passrecs' && (
+            <motion.div key="passrecs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Password Resets</h1>
+                  <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wide">
+                    {passRequests.length} password reset request{passRequests.length !== 1 ? 's' : ''} pending
+                  </p>
+                </div>
+                <LuminaButton onClick={() => { fetchPassRequests(); toast.success('LIST SYNCED'); }} variant="secondary">
+                  <RefreshCw size={14} className="mr-2" /> Sync List
+                </LuminaButton>
+              </div>
+
+              {passRequests.length === 0 ? (
+                <div className="lumina-card text-center py-20 flex flex-col items-center">
+                  <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
+                    <CheckCircle size={32} className="text-green-500" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-gray-900 mb-2 uppercase tracking-tight">Access Log Clear</h3>
+                  <p className="text-gray-500 max-w-xs font-medium">No pending password reset requests.</p>
+                </div>
+              ) : (
+                <motion.div 
+                  className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1
+                      }
+                    }
+                  }}
+                  initial="hidden"
+                  animate="show"
+                >
+                  {passRequests.map((req) => (
+                    <motion.div
+                      key={req._id}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        show: { opacity: 1, y: 0 }
+                      }}
+                      className="lumina-card overflow-hidden !p-0"
+                    >
+                      <div className="p-6">
+                        <div className="flex items-center gap-4 mb-6">
+                          <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center font-black text-orange-600 text-lg border border-orange-100">
+                            {req.adminId?.username?.[0]?.toUpperCase() || '?'}
+                          </div>
+                          <div>
+                            <div className="font-extrabold text-gray-900 uppercase tracking-tight">{req.adminId?.username || 'Unknown'}</div>
+                            <div className="text-xs font-bold text-gray-500">{req.adminId?.email || 'Unknown'}</div>
+                          </div>
+                        </div>
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Request Type</div>
+                          <div className="text-sm font-semibold text-gray-700 leading-relaxed">Password Change Request</div>
+                        </div>
+                        <div className="flex bg-white gap-2 mt-auto pt-6 border-t border-gray-100">
+                  <LuminaButton
+                    variant="primary"
+                    fullWidth
+                    onClick={() => handlePassRequest(req._id, 'approved')}
+                    disabled={loadingAction === 'pass' + req._id + 'approved'}
+                  >
+                    <CheckCircle size={14} className="mr-1" /> Approve
+                  </LuminaButton>
+                  <LuminaButton
+                    variant="danger"
+                    fullWidth
+                    onClick={() => handlePassRequest(req._id, 'rejected')}
+                    disabled={loadingAction === 'pass' + req._id + 'rejected'}
+                  >
+                    <XCircle size={14} className="mr-1" /> Reject
+                  </LuminaButton>
+                </div>
+                      </div>
+                      <div className="bg-gray-50/50 px-6 py-3 border-t border-gray-100 flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Submitted: {new Date(req.createdAt).toLocaleDateString()}</span>
+                        <span>{new Date(req.createdAt).toLocaleTimeString()}</span>
                       </div>
                     </motion.div>
                   ))}

@@ -1,7 +1,8 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 
 /**
- * LuminaButton — Modern action button with spring-physics.
+ * LuminaButton — Modern action button with Antigravity aesthetic.
  */
 const LuminaButton = ({
   children,
@@ -9,86 +10,70 @@ const LuminaButton = ({
   type = 'button',
   variant = 'primary', // 'primary', 'secondary', 'danger', 'ghost'
   disabled = false,
+  isLoading = false,
   className = '',
   fullWidth = false,
 }) => {
-  const variants = {
-    primary: {
-      bg: 'var(--action-blue)',
-      text: '#FFFFFF',
-      border: 'none',
-      shadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1)',
-      hoverBg: 'var(--action-blue-hover)',
-    },
-    secondary: {
-      bg: '#FFFFFF',
-      text: 'var(--text-main)',
-      border: '1px solid var(--gray-200)',
-      shadow: 'var(--lumina-shadow-sm)',
-      hoverBg: 'var(--gray-50)',
-    },
-    danger: {
-      bg: '#EF4444',
-      text: '#FFFFFF',
-      border: 'none',
-      shadow: '0 4px 6px -1px rgba(239, 68, 68, 0.2)',
-      hoverBg: '#DC2626',
-    },
-    ghost: {
-      bg: 'transparent',
-      text: 'var(--text-muted)',
-      border: 'none',
-      shadow: 'none',
-      hoverBg: 'rgba(0,0,0,0.05)',
-    },
+  
+  const getVariantClasses = () => {
+    switch(variant) {
+      case 'secondary':
+        return 'bg-white border border-slate-200 text-slate-600 shadow-sm';
+      case 'danger':
+        return 'bg-red-50 border border-red-200 text-red-600 shadow-sm';
+      case 'ghost':
+        return 'bg-transparent text-slate-500 hover:text-slate-800';
+      case 'primary':
+      default:
+        // Antigravity Primary
+        return 'bg-gradient-to-tr from-slate-100 to-white border border-slate-200 text-slate-700 shadow-sm';
+    }
   };
 
-  const current = variants[variant] || variants.primary;
+  const isInteractive = !disabled && !isLoading;
 
   return (
     <motion.button
       type={type}
       onClick={onClick}
-      disabled={disabled}
-      style={{
-        background: current.bg,
-        color: current.text,
-        border: current.border,
-        boxShadow: current.shadow,
-        borderRadius: 'var(--radius-md)',
-        padding: '0.75rem 1.5rem',
-        fontFamily: "'Inter', sans-serif",
-        fontWeight: 600,
-        fontSize: '0.875rem',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        width: fullWidth ? '100%' : 'auto',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        transition: 'background-color 0.2s ease, border-color 0.2s ease',
-      }}
-      whileHover={
-        !disabled
-          ? {
-              y: -2,
-              scale: 1.02,
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            }
-          : {}
-      }
-      whileTap={!disabled ? { scale: 0.98, y: 0 } : {}}
-      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-      className={className}
-      onMouseEnter={(e) => {
-        if (!disabled) e.currentTarget.style.backgroundColor = current.hoverBg;
-      }}
-      onMouseLeave={(e) => {
-        if (!disabled) e.currentTarget.style.backgroundColor = current.bg;
-      }}
+      disabled={disabled || isLoading}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: isLoading ? 0.7 : 1, scale: 1 }}
+      whileHover={isInteractive ? { 
+        y: -2, 
+        boxShadow: variant === 'primary' 
+          ? '0 20px 25px -5px rgba(148, 163, 184, 0.4), 0 8px 10px -6px rgba(148, 163, 184, 0.2)'
+          : '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+      } : {}}
+      whileTap={isInteractive ? { scale: 0.96, y: 0 } : {}}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className={`
+        relative overflow-hidden inline-flex items-center justify-center gap-2 font-bold text-sm
+        py-3 px-6 rounded-xl transition-colors duration-300 outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2
+        ${getVariantClasses()}
+        ${fullWidth ? 'w-full' : 'w-auto'}
+        ${!isInteractive ? 'cursor-not-allowed' : 'cursor-pointer'}
+        ${disabled && !isLoading ? 'opacity-50' : ''}
+        ${className}
+      `}
     >
-      {children}
+      <AnimatePresence>
+        {isLoading && variant === 'primary' && (
+          <motion.div
+            className="absolute inset-0 bg-slate-300/40"
+            initial={{ scaleX: 0, opacity: 1 }}
+            animate={{ scaleX: 1, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
+            style={{ originX: 0.5 }}
+          />
+        )}
+      </AnimatePresence>
+      
+      <span className="relative z-10 flex items-center justify-center gap-2">
+        {isLoading && <Loader2 className="animate-spin w-4 h-4 text-slate-500" />}
+        {children}
+      </span>
     </motion.button>
   );
 };

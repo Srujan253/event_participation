@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import Admin from '../models/Admin.js';
 import Event from '../models/Event.js';
+import PasswordResetRequest from '../models/PasswordResetRequest.js';
 import { superAdminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -198,6 +199,67 @@ router.get('/superadmins', superAdminOnly, async (req, res) => {
     res.json(superAdmins);
   } catch (err) {
     console.error('[LIST SUPERADMINS ERROR]', err);
+    res.status(500).json({ message: 'Server error.', error: err.message });
+  }
+});
+
+// @route  GET /api/superadmin/password-requests
+// @desc   Get all pending password reset requests
+router.get('/password-requests', superAdminOnly, async (req, res) => {
+  try {
+    const pendingRequests = await PasswordResetRequest.find({ status: 'pending' })
+      .populate('adminId', 'username email')
+      .sort({ createdAt: -1 });
+    res.json(pendingRequests);
+  } catch (err) {
+    console.error('[SUPERADMIN PASSWORD REQUESTS ERROR]', err);
+    res.status(500).json({ message: 'Server error.', error: err.message });
+  }
+});
+
+// @route  PUT /api/superadmin/password-requests/:id
+// @desc   Approve or reject a password reset request
+router.put('/password-requests/:id', superAdminOnly, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ message: 'Status must be "approved" or "rejected".' });
+    }
+
+    const request = await PasswordResetRequest.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ message: 'Password reset request not found.' });
+    }
+
+    if (request.status !== 'pending') {
+      return res.status(400).json({ message: 'Request is already processed.' });
+    }
+
+    request.status = status;
+    await request.save();
+
+    if (status === 'approved') {
+      const admin = await Admin.findById(request.adminId);
+      if (admin) {
+        // the PasswordResetRequest model has already hashed the newPassword string.
+        // wait, we need to bypass Admin schema hashing or copy it?
+        // Let's set it to the hashed password we already stored in request.
+        // Actually, we hash it on PasswordResetRequest.pre('save').
+        // Let's overwrite admin.password directly, but we don't want Admin.pre('save') to re-hash it!
+        // Admin.js has: if (!this.isModified('password')) return; this.password = await bcrypt.hash(this.password, 12);
+        // So we MUST NOT update admin.password via save() if we already hashed it, OR we don't hash it in PasswordResetRequest... 
+        
+        // Simpler way: update admin directly using updateOne to bypass pre-save hook.
+        await Admin.updateOne(
+          { _id: admin._id },
+          { $set: { password: request.newPassword } } 
+        );
+      }
+    }
+
+    res.json({ message: `Password reset request ${status}.` });
+  } catch (err) {
+    console.error('[SUPERADMIN UPDATE PASSWORD REQUEST ERROR]', err);
     res.status(500).json({ message: 'Server error.', error: err.message });
   }
 });

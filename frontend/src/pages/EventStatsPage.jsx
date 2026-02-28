@@ -15,7 +15,7 @@ export default function EventStatsPage() {
   const [loading, setLoading] = useState(true);
   const [exportLoading, setExportLoading] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = async (showToast = false) => {
     setLoading(true);
     try {
       const [statsData, recordsData] = await Promise.all([
@@ -24,16 +24,20 @@ export default function EventStatsPage() {
       ]);
       setStats(statsData);
       setRecords(Array.isArray(recordsData) ? recordsData : []);
-      toast.success('DATA SYNCHRONIZED');
+      if (showToast) {
+        toast.success('DATA SYNCHRONIZED');
+      }
     } catch {
-      toast.error('SYNC FAILED');
+      if (showToast) {
+        toast.error('SYNC FAILED');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(false);
   }, [id]);
 
   const handleExport = async () => {
@@ -88,7 +92,7 @@ export default function EventStatsPage() {
             <ArrowLeft size={18} className="mr-2" /> Return to Terminal
           </LuminaButton>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <LuminaButton onClick={fetchData} variant="secondary">
+            <LuminaButton onClick={() => fetchData(true)} variant="secondary">
               <RefreshCw size={14} className="mr-2" /> Sync Data
             </LuminaButton>
             <LuminaButton

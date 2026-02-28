@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Calendar, Edit2, Trash2, User, QrCode, BarChart2, Plus } from 'lucide-react';
-import { getEvents, createEvent, deleteEvent, updateEvent } from '../api';
+import { LogOut, Calendar, Edit2, Trash2, User, QrCode, BarChart2, Plus, Eye, EyeOff } from 'lucide-react';
+import { getEvents, createEvent, deleteEvent, updateEvent, requestPasswordReset } from '../api';
 import Navbar from '../components/Navbar';
 import LuminaButton from '../components/LuminaButton';
 import toast from 'react-hot-toast';
@@ -19,6 +19,11 @@ export default function Dashboard() {
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  
+  // Account State
+  const [resetPass, setResetPass] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const navigate = useNavigate();
   const admin = JSON.parse(localStorage.getItem('attendqr_admin') || '{}');
@@ -158,6 +163,20 @@ export default function Dashboard() {
               }`}
             >
               {editingId ? 'Edit Event' : 'Create Event'}
+            </motion.button>
+          </Magnetic>
+          <Magnetic>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              onClick={() => { setActiveTab('account'); setEditingId(null); }}
+              className={`cursor-pointer px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                activeTab === 'account' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Account
             </motion.button>
           </Magnetic>
         </div>
@@ -352,6 +371,75 @@ export default function Dashboard() {
                     )}
                   </div>
                 </form>
+              </motion.div>
+            )}
+
+            {/* ACCOUNT TAB */}
+            {activeTab === 'account' && (
+              <motion.div
+                key="account"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="lumina-card max-w-[600px] mx-auto p-6 md:p-10"
+              >
+                <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-100">
+                  <div className="w-20 h-20 rounded-2xl bg-blue-50 flex items-center justify-center font-black text-blue-600 text-3xl border border-blue-100">
+                    {admin?.username?.[0]?.toUpperCase() || 'A'}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">{admin?.username || 'Admin'}</h2>
+                    <p className="text-sm font-bold text-gray-500 tracking-wide">{admin?.email}</p>
+                    <div className="mt-2 inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-200">
+                      {admin?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Request Password Reset</h3>
+                  <p className="text-xs font-semibold text-gray-500 mb-6">
+                    Enter a new password below to request a change. Your request will be sent to the Super Admin for approval.
+                  </p>
+                  
+                  <form onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!resetPass || resetPass.length < 6) return toast.error('Password must be at least 6 characters');
+                    setResetLoading(true);
+                    try {
+                      await requestPasswordReset({ newPassword: resetPass });
+                      toast.success('PASSWORD RESET REQUESTED');
+                      setResetPass('');
+                    } catch (err) {
+                      toast.error(err.message || 'FAILED TO REQUEST RESET');
+                    } finally {
+                      setResetLoading(false);
+                    }
+                  }} className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2 relative">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">New Password</label>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={resetPass}
+                        onChange={(e) => setResetPass(e.target.value)}
+                        required
+                        className="lumina-input"
+                        placeholder="Enter new password (min 6 chars)"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-[38px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                    <LuminaButton type="submit" disabled={resetLoading} variant="primary">
+                      {resetLoading ? 'SUBMITTING...' : 'SUBMIT RESET REQUEST'}
+                    </LuminaButton>
+                  </form>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
