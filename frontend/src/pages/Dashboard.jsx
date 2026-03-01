@@ -6,10 +6,12 @@ import { getEvents, createEvent, deleteEvent, updateEvent, requestPasswordReset 
 import Navbar from '../components/Navbar';
 import LuminaButton from '../components/LuminaButton';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import Magnetic from '../components/Magnetic';
 import LuminaDatePicker from '../components/LuminaDatePicker';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('list'); // 'list', 'create'
@@ -148,7 +150,7 @@ export default function Dashboard() {
                   : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              Event List
+              {t('dashboard.event_list')}
             </motion.button>
           </Magnetic>
           <Magnetic>
@@ -162,7 +164,7 @@ export default function Dashboard() {
                   : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              {editingId ? 'Edit Event' : 'Create Event'}
+              {editingId ? t('dashboard.edit_event') : t('dashboard.create_event')}
             </motion.button>
           </Magnetic>
           <Magnetic>
@@ -176,7 +178,7 @@ export default function Dashboard() {
                   : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              Account
+              {t('dashboard.account')}
             </motion.button>
           </Magnetic>
         </div>
@@ -196,17 +198,17 @@ export default function Dashboard() {
                 {loading ? (
                   <div style={{ textAlign: 'center', padding: '6rem 0' }}>
                     <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-gray-500 font-medium">Loading amazing events...</p>
+                    <p className="text-gray-500 font-medium">{t('dashboard.loading')}</p>
                   </div>
                 ) : events.length === 0 ? (
                   <div className="lumina-card text-center py-16 flex flex-col items-center">
                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                       <Calendar size={32} className="text-gray-300" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">No Events Yet</h3>
-                    <p className="text-gray-500 max-w-xs mb-8">Ready to start? Create your first event to generate QR codes and track participation.</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t('dashboard.no_events')}</h3>
+                    <p className="text-gray-500 max-w-xs mb-8">{t('dashboard.no_events_desc')}</p>
                     <LuminaButton onClick={() => setActiveTab('create')}>
-                      <Plus size={18} /> Create First Event
+                      <Plus size={18} /> {t('dashboard.create_first_event')}
                     </LuminaButton>
                   </div>
                 ) : (
@@ -312,38 +314,38 @@ export default function Dashboard() {
                 className="lumina-card max-w-[600px] mx-auto p-6 md:p-10"
               >
                 <h2 className="text-2xl font-bold text-gray-900 mb-8">
-                  {editingId ? 'Edit Event Details' : 'Design New Event'}
+                  {editingId ? t('dashboard.edit_event') : t('dashboard.design_new_event')}
                 </h2>
                 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-bold text-gray-700">Event Name</label>
+                    <label className="text-sm font-bold text-gray-700">{t('dashboard.event_name')}</label>
                     <input
                       type="text"
                       value={form.eventName}
                       onChange={(e) => setForm({ ...form, eventName: e.target.value })}
                       required
                       className="lumina-input"
-                      placeholder="Enter a descriptive event name"
+                      placeholder={t('dashboard.event_name_placeholder')}
                     />
                   </div>
                   
                   <div className="flex flex-col gap-2 relative z-50">
-                    <label className="text-sm font-bold text-gray-700">Event Date</label>
+                    <label className="text-sm font-bold text-gray-700">{t('dashboard.event_date')}</label>
                     <LuminaDatePicker 
                       value={form.eventDate}
                       onChange={(date) => setForm({ ...form, eventDate: date })}
-                      placeholder="Select event date"
+                      placeholder={t('dashboard.select_date')}
                     />
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-bold text-gray-700">Description</label>
+                    <label className="text-sm font-bold text-gray-700">{t('dashboard.description')}</label>
                     <textarea
                       value={form.description}
                       onChange={(e) => setForm({ ...form, description: e.target.value })}
                       className="lumina-input min-h-[100px] resize-y"
-                      placeholder="Add event description"
+                      placeholder={t('dashboard.add_desc')}
                     />
                   </div>
 
@@ -359,14 +361,14 @@ export default function Dashboard() {
                       disabled={submitting}
                       fullWidth
                     >
-                      {submitting ? 'Syncing...' : (editingId ? 'Update Event' : 'Launch Event')}
+                      {submitting ? t('dashboard.syncing') : (editingId ? t('dashboard.update_event') : t('dashboard.launch_event'))}
                     </LuminaButton>
                     {editingId && (
                       <LuminaButton 
                         variant="secondary"
                         onClick={() => { setActiveTab('list'); setEditingId(null); setForm({ eventName: '', eventDate: '', description: '' }); }}
                       >
-                        Cancel
+                        {t('dashboard.cancel')}
                       </LuminaButton>
                     )}
                   </div>
@@ -398,9 +400,9 @@ export default function Dashboard() {
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Request Password Reset</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{t('dashboard.request_password_reset')}</h3>
                   <p className="text-xs font-semibold text-gray-500 mb-6">
-                    Enter a new password below to request a change. Your request will be sent to the Super Admin for approval.
+                    {t('dashboard.reset_password_desc')}
                   </p>
                   
                   <form onSubmit={async (e) => {
@@ -418,14 +420,14 @@ export default function Dashboard() {
                     }
                   }} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2 relative">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">New Password</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('dashboard.new_password')}</label>
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={resetPass}
                         onChange={(e) => setResetPass(e.target.value)}
                         required
                         className="lumina-input"
-                        placeholder="Enter new password (min 6 chars)"
+                        placeholder={t('dashboard.new_password_placeholder')}
                       />
                       <button 
                         type="button" 
@@ -436,7 +438,7 @@ export default function Dashboard() {
                       </button>
                     </div>
                     <LuminaButton type="submit" disabled={resetLoading} variant="primary">
-                      {resetLoading ? 'SUBMITTING...' : 'SUBMIT RESET REQUEST'}
+                      {resetLoading ? t('dashboard.submitting') : t('dashboard.submit_reset')}
                     </LuminaButton>
                   </form>
                 </div>

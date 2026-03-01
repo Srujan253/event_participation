@@ -2,10 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogOut, User, Zap, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Magnetic from './Magnetic';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const admin = JSON.parse(localStorage.getItem('attendqr_admin') || '{}');
 
@@ -15,8 +17,12 @@ const Navbar = () => {
     navigate('/auth');
   };
 
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'en' ? 'ja' : 'en');
+  };
+
   const navLinks = [
-    { label: 'Event List', path: '/', active: true },
+    { label: t('navbar.event_list'), path: '/', active: true },
   ];
 
   return (
@@ -56,8 +62,14 @@ const Navbar = () => {
             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
               <User size={16} />
             </div>
-            <span className="text-sm font-semibold">{admin.username || 'Admin'}</span>
+            <span className="text-sm font-semibold">{admin.username || t('navbar.admin')}</span>
           </div>
+          <button
+            onClick={toggleLanguage}
+            className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            {i18n.language === 'en' ? 'JP' : 'EN'}
+          </button>
           <Magnetic>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -66,7 +78,7 @@ const Navbar = () => {
               onClick={handleLogout}
               className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm cursor-pointer"
             >
-              Logout
+              {t('navbar.logout')}
             </motion.button>
           </Magnetic>
         </div>
@@ -101,10 +113,16 @@ const Navbar = () => {
               <span className="text-sm font-semibold">{admin.username}</span>
             </div>
             <button 
+              onClick={toggleLanguage}
+              className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50 text-left transition-colors hover:text-gray-900 cursor-pointer w-full"
+            >
+              {t('navbar.language')}: {i18n.language === 'en' ? 'English' : '日本語'}
+            </button>
+            <button 
               onClick={handleLogout}
               className="text-sm font-bold text-red-600"
             >
-              Logout
+              {t('navbar.logout')}
             </button>
           </div>
         </motion.div>

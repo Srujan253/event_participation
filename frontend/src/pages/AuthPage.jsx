@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Lock, Mail, User, Eye, EyeOff, FileText, Clock, XCircle, ArrowRight, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { loginAdmin, registerAdmin } from '../api';
 import LuminaButton from '../components/LuminaButton';
 
 export default function AuthPage() {
+  const { t, i18n } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ username: '', email: '', password: '', purpose: '' });
   const [loading, setLoading] = useState(false);
@@ -14,6 +16,10 @@ export default function AuthPage() {
   const [errorStatus, setErrorStatus] = useState(null); // 'pending' | 'rejected'
   const [registered, setRegistered] = useState(false);
   const navigate = useNavigate();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'en' ? 'ja' : 'en');
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -52,7 +58,13 @@ export default function AuthPage() {
 
   if (registered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-['Montserrat',sans-serif]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-200 p-4 font-['Montserrat',sans-serif] relative">
+        <button
+          onClick={toggleLanguage}
+          className="absolute top-6 right-6 z-50 px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
+          {i18n.language === 'en' ? '日本語 (JP)' : 'English (EN)'}
+        </button>
         <motion.div 
           initial={{ y: 20, opacity: 0 }} 
           animate={{ y: 0, opacity: 1 }}
@@ -60,9 +72,9 @@ export default function AuthPage() {
           className="relative max-w-md w-full p-10 rounded-3xl backdrop-blur-[20px] bg-white/60 border border-white/40 text-center text-slate-800 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05),_0_10px_20px_-5px_rgba(0,0,0,0.02)]"
         >
           <div className="text-6xl mb-6">⏳</div>
-          <h1 className="font-bold text-2xl mb-4 text-slate-800 tracking-tight">Awaiting Approval</h1>
+          <h1 className="font-bold text-2xl mb-4 text-slate-800 tracking-tight">{t('auth.awaiting_approval')}</h1>
           <p className="font-medium text-slate-500 mb-8">
-            Your request has been sent to the Super Admin. Please check back later.
+            {t('auth.awaiting_desc')}
           </p>
           <motion.button
             whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(148, 163, 184, 0.4)' }}
@@ -70,7 +82,7 @@ export default function AuthPage() {
             onClick={() => { setRegistered(false); setIsLogin(true); }}
             className="w-full py-4 rounded-xl font-bold text-slate-700 bg-gradient-to-tr from-slate-100 to-white border border-slate-200/60 shadow-sm transition-all duration-300 cursor-pointer"
           >
-            Back to Login
+            {t('auth.back_to_login')}
           </motion.button>
         </motion.div>
       </div>
@@ -78,17 +90,25 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 font-['Montserrat',sans-serif] overflow-hidden relative">
+    <div className="min-h-screen flex items-center justify-center bg-gray-200 p-4 font-['Montserrat',sans-serif] overflow-hidden relative">
+      <button
+        onClick={toggleLanguage}
+        className="absolute top-6 right-6 z-50 px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+      >
+        {i18n.language === 'en' ? '日本語 (JP)' : 'English (EN)'}
+      </button>
+
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-slate-100 blur-[80px] opacity-70" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-white blur-[80px] opacity-80" />
       </div>
 
       <motion.div 
+        layout
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 250, damping: 25, mass: 0.5 }}
-        className="relative z-10 w-full max-w-[420px] backdrop-blur-[20px] bg-white/70 border border-slate-200/50 rounded-[2rem] p-8 sm:p-10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05),_0_10px_20px_-5px_rgba(0,0,0,0.02)]"
+        className="relative z-10 w-full max-w-[420px] bg-white border border-slate-200 rounded-[2rem] p-8 sm:p-10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1),_0_10px_20px_-5px_rgba(0,0,0,0.05)]"
       >
         <div className="flex flex-col items-center mb-8">
           <motion.div 
@@ -99,15 +119,16 @@ export default function AuthPage() {
           >
             <Zap size={24} className="fill-slate-700" />
           </motion.div>
-          <h2 className="font-extrabold text-2xl text-slate-800 tracking-tight">
-            {isLogin ? 'Welcome Back' : 'Create Admin'}
+          <h2 className="font-extrabold text-2xl text-slate-900 tracking-tight">
+            {isLogin ? t('auth.welcome_back') : t('auth.create_admin')}
           </h2>
-          <p className="text-sm font-medium text-slate-500 mt-2 text-center">
-            {isLogin ? "Enter your details to access your dashboard." : "Submit a request to join as an event admin."}
+          <p className="text-sm font-semibold text-slate-600 mt-2 text-center">
+            {isLogin ? t('auth.enter_details') : t('auth.submit_request_desc')}
           </p>
         </div>
 
         <motion.form 
+          layout
           onSubmit={handleSubmit} 
           className="flex flex-col gap-5"
           variants={{
@@ -117,59 +138,62 @@ export default function AuthPage() {
           initial="hidden"
           animate="show"
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
             {!isLogin && (
-              <motion.div 
-                key="name"
-                initial={{ opacity: 0, height: 0, y: -10 }}
-                animate={{ opacity: 1, height: 'auto', y: 0 }}
-                exit={{ opacity: 0, height: 0, y: -10 }}
-                className="flex flex-col gap-1 overflow-hidden"
-              >
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
+                <motion.div 
+                  layout
+                  key="name"
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  className="flex flex-col gap-1 overflow-hidden"
+                >
+                <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider ml-1">{t('auth.full_name')}</label>
                 <div className="relative group">
-                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" />
+                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-slate-800 transition-colors" />
                   <input
                     type="text" name="username" placeholder="Jane Doe" required
                     value={form.username} onChange={handleChange}
-                    className="w-full bg-transparent border border-slate-200/80 rounded-xl py-3 pl-11 pr-4 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all duration-300"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-11 pr-4 text-slate-900 font-medium placeholder-slate-500 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-200 transition-all duration-300"
                   />
                 </div>
               </motion.div>
             )}
 
             <motion.div 
+              layout
               key="email"
               variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
               className="flex flex-col gap-1"
             >
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Email</label>
+              <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider ml-1">{t('auth.email')}</label>
               <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-slate-800 transition-colors" />
                 <input
                   type="email" name="email" placeholder="jane@example.com" required
                   value={form.email} onChange={handleChange}
-                  className="w-full bg-transparent border border-slate-200/80 rounded-xl py-3 pl-11 pr-4 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all duration-300"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-11 pr-4 text-slate-900 font-medium placeholder-slate-500 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-200 transition-all duration-300"
                 />
               </div>
             </motion.div>
 
             <motion.div 
+              layout
               key="password"
               variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
               className="flex flex-col gap-1"
             >
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Password</label>
+              <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider ml-1">{t('auth.password')}</label>
               <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-700 transition-colors" />
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-slate-800 transition-colors" />
                 <input
                   type={showPass ? 'text' : 'password'} name="password" placeholder="••••••••" required
                   value={form.password} onChange={handleChange}
-                  className="w-full bg-transparent border border-slate-200/80 rounded-xl py-3 pl-11 pr-11 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all duration-300"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-11 pr-11 text-slate-900 font-medium placeholder-slate-500 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-200 transition-all duration-300"
                 />
                 <button
                   type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
                 >
                   {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -177,20 +201,21 @@ export default function AuthPage() {
             </motion.div>
 
             {!isLogin && (
-              <motion.div 
-                key="purpose"
-                initial={{ opacity: 0, height: 0, y: -10 }}
-                animate={{ opacity: 1, height: 'auto', y: 0 }}
-                exit={{ opacity: 0, height: 0, y: -10 }}
-                className="flex flex-col gap-1 overflow-hidden"
-              >
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Purpose of Joining</label>
+                <motion.div 
+                  layout
+                  key="purpose"
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  className="flex flex-col gap-1 overflow-hidden"
+                >
+                <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider ml-1">{t('auth.purpose')}</label>
                 <div className="relative group">
-                  <FileText size={18} className="absolute left-4 top-4 text-slate-400 group-focus-within:text-slate-700 transition-colors" />
+                  <FileText size={18} className="absolute left-4 top-4 text-slate-500 group-focus-within:text-slate-800 transition-colors" />
                   <textarea
                     name="purpose" placeholder="Brief reason for access..." required
                     value={form.purpose} onChange={handleChange} rows={2}
-                    className="w-full bg-transparent border border-slate-200/80 rounded-xl py-3 pl-11 pr-4 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all duration-300 resize-none"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-11 pr-4 text-slate-900 font-medium placeholder-slate-500 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-200 transition-all duration-300 resize-none"
                   />
                 </div>
               </motion.div>
@@ -205,7 +230,7 @@ export default function AuthPage() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="bg-slate-100 text-slate-700 border border-slate-200/60 p-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-xs"
               >
-                <Clock size={16} /> ACCOUNT PENDING APPROVAL
+                <Clock size={16} /> {t('auth.account_pending')}
               </motion.div>
             )}
             {errorStatus === 'rejected' && (
@@ -215,12 +240,13 @@ export default function AuthPage() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="bg-red-50 text-red-600 border border-red-100 p-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-xs"
               >
-                <XCircle size={16} /> REQUEST REJECTED BY SUPER ADMIN
+                <XCircle size={16} /> {t('auth.request_rejected')}
               </motion.div>
             )}
           </AnimatePresence>
 
           <motion.div
+            layout
             variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
             className="mt-2"
           >
@@ -229,7 +255,7 @@ export default function AuthPage() {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="group relative overflow-hidden w-full py-3.5 rounded-xl font-bold text-slate-700 bg-gradient-to-tr from-slate-100 to-white border border-slate-200/60 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              className="group relative overflow-hidden w-full py-3.5 rounded-xl font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <AnimatePresence>
                 {loading && (
@@ -243,9 +269,9 @@ export default function AuthPage() {
                 )}
               </AnimatePresence>
               <span className="relative z-10 flex items-center justify-center gap-2">
-                {loading ? 'Processing...' : (
+                {loading ? t('auth.processing') : (
                   <>
-                    {isLogin ? 'Sign In' : 'Submit Request'}
+                    {isLogin ? t('auth.sign_in') : t('auth.submit_request')}
                     <ArrowRight size={18} className="text-slate-400 group-hover:translate-x-1 group-hover:text-slate-600 transition-all duration-300" />
                   </>
                 )}
@@ -254,6 +280,7 @@ export default function AuthPage() {
           </motion.div>
 
           <motion.div 
+            layout
             variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
             className="text-center mt-2"
           >
@@ -264,9 +291,9 @@ export default function AuthPage() {
                 setErrorStatus(null);
                 setForm({ username: '', email: '', password: '', purpose: '' });
               }}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
             >
-              {isLogin ? "Don't have an account? Request access" : "Already an admin? Sign in instead"}
+              {isLogin ? t('auth.no_account') : t('auth.has_account')}
             </button>
           </motion.div>
         </motion.form>

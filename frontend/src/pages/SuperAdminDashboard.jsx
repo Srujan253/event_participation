@@ -19,14 +19,15 @@ import {
 } from '../api';
 import LuminaButton from '../components/LuminaButton';
 import Magnetic from '../components/Magnetic';
+import { useTranslation } from 'react-i18next';
 
 // ─── Sidebar Nav Items ────────────────────────────────────────────────────────
 const NAV = [
-  { id: 'stats',       label: 'Platform Stats',   icon: LayoutDashboard },
-  { id: 'requests',    label: 'Pending Requests',  icon: Clock },
-  { id: 'passrecs',    label: 'Password Resets',   icon: Lock },
-  { id: 'admins',      label: 'Active Admins',     icon: Users },
-  { id: 'superadmins', label: 'Super Admins',      icon: Shield },
+  { id: 'stats',       label: 'superAdmin.platform_stats',   icon: LayoutDashboard },
+  { id: 'requests',    label: 'superAdmin.pending_requests',  icon: Clock },
+  { id: 'passrecs',    label: 'superAdmin.password_resets',   icon: Lock },
+  { id: 'admins',      label: 'superAdmin.active_admins',     icon: Users },
+  { id: 'superadmins', label: 'superAdmin.super_admins',      icon: Shield },
 ];
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
@@ -79,6 +80,7 @@ function LuminaInput({ label, name, type = 'text', value, onChange, required, ex
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function SuperAdminDashboard() {
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('stats');
   const [stats, setStats]         = useState(null);
   const [requests, setRequests]   = useState([]);
@@ -86,6 +88,10 @@ export default function SuperAdminDashboard() {
   const [admins, setAdmins]       = useState([]);
   const [superAdmins, setSuperAdmins] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null);
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'en' ? 'ja' : 'en');
+  };
 
   // Create super admin form state
   const [saForm, setSaForm] = useState({ username: '', email: '', password: '' });
@@ -227,7 +233,7 @@ export default function SuperAdminDashboard() {
               }`}
             >
               <Icon size={16} strokeWidth={activeTab === id ? 2.5 : 2} />
-              {label}
+              {t(label)}
               {id === 'requests' && requests.length > 0 && (
                 <span className="ml-auto bg-red-100 text-red-600 rounded-full text-[10px] px-2 py-0.5 border border-red-200">
                   {requests.length}
@@ -242,8 +248,14 @@ export default function SuperAdminDashboard() {
           ))}
         </motion.nav>
 
-        {/* Logout */}
-        <div className="p-6 border-t border-gray-100 flex justify-center">
+        {/* Logout and Language */}
+        <div className="p-6 border-t border-gray-100 flex flex-col gap-3 justify-center">
+          <button
+            onClick={toggleLanguage}
+            className="w-full py-2.5 rounded-lg text-gray-600 font-bold text-xs tracking-wider border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-center"
+          >
+            {i18n.language === 'en' ? '日本語 (JP)' : 'ENGLISH (EN)'}
+          </button>
           <div className="w-full relative">
             <Magnetic>
               <motion.button
@@ -256,7 +268,7 @@ export default function SuperAdminDashboard() {
                   boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.05)',
                 }}
               >
-                <LogOut size={16} strokeWidth={2.5} /> LOGOUT
+                <LogOut size={16} strokeWidth={2.5} /> {t('superAdmin.logout')}
               </motion.button>
             </Magnetic>
           </div>
@@ -270,8 +282,8 @@ export default function SuperAdminDashboard() {
           {/* ══ STATS TAB ══ */}
           {activeTab === 'stats' && (
             <motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2 uppercase">Platform Performance</h1>
-              <p className="text-sm font-bold text-gray-400 mb-8 tracking-wide">ECOSYSTEM ANALYTICS & HUB OVERVIEW</p>
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2 uppercase">{t('superAdmin.platform_performance')}</h1>
+              <p className="text-sm font-bold text-gray-400 mb-8 tracking-wide">{t('superAdmin.ecosystem_overview')}</p>
               <motion.div 
                 className="grid grid-cols-1 md:grid-cols-3 gap-6"
                 variants={{
@@ -286,13 +298,13 @@ export default function SuperAdminDashboard() {
                 initial="hidden"
                 animate="show"
               >
-                <StatCard label="Active Admins"    value={stats?.totalAdmins}     icon={Users}        accent="#2563EB" />
-                <StatCard label="Total Events"     value={stats?.totalEvents}     icon={CalendarDays} accent="#10B981" />
-                <StatCard label="Pending Requests" value={stats?.pendingRequests} icon={Hourglass}    accent="#F43F5E" />
+                <StatCard label={t('superAdmin.active_admins')}    value={stats?.totalAdmins}     icon={Users}        accent="#2563EB" />
+                <StatCard label={t('superAdmin.total_events')}     value={stats?.totalEvents}     icon={CalendarDays} accent="#10B981" />
+                <StatCard label={t('superAdmin.pending_requests')} value={stats?.pendingRequests} icon={Hourglass}    accent="#F43F5E" />
               </motion.div>
               <div className="mt-8">
                 <LuminaButton onClick={() => { fetchStats(); toast.success('SYNCED DATA'); }} variant="secondary">
-                  <RefreshCw size={14} className="mr-2" /> Sync Data
+                  <RefreshCw size={14} className="mr-2" /> {t('superAdmin.sync_data')}
                 </LuminaButton>
               </div>
             </motion.div>
@@ -303,13 +315,13 @@ export default function SuperAdminDashboard() {
             <motion.div key="requests" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Access Gate</h1>
+                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">{t('superAdmin.access_gate')}</h1>
                   <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wide">
-                    {requests.length} admin application{requests.length !== 1 ? 's' : ''} pending
+                    {requests.length} {t('superAdmin.apps_pending')}
                   </p>
                 </div>
                 <LuminaButton onClick={() => { fetchRequests(); fetchStats(); toast.success('GATE SYNCED'); }} variant="secondary">
-                  <RefreshCw size={14} className="mr-2" /> Sync Gate
+                  <RefreshCw size={14} className="mr-2" /> {t('superAdmin.sync_gate')}
                 </LuminaButton>
               </div>
 
@@ -318,8 +330,8 @@ export default function SuperAdminDashboard() {
                   <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
                     <CheckCircle size={32} className="text-green-500" />
                   </div>
-                  <h3 className="text-xl font-extrabold text-gray-900 mb-2 uppercase tracking-tight">Access Log Clear</h3>
-                  <p className="text-gray-500 max-w-xs font-medium">All applications have been processed. Great work!</p>
+                  <h3 className="text-xl font-extrabold text-gray-900 mb-2 uppercase tracking-tight">{t('superAdmin.access_log_clear')}</h3>
+                  <p className="text-gray-500 max-w-xs font-medium">{t('superAdmin.all_processed')}</p>
                 </div>
               ) : (
                 <motion.div 
@@ -356,7 +368,7 @@ export default function SuperAdminDashboard() {
                           </div>
                         </div>
                         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
-                          <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Statement of Purpose</div>
+                          <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{t('superAdmin.statement_purpose')}</div>
                           <div className="text-sm font-semibold text-gray-700 leading-relaxed">{req.purpose || '—'}</div>
                         </div>
                         <div className="flex bg-white gap-2 mt-auto pt-6 border-t border-gray-100">
@@ -366,7 +378,7 @@ export default function SuperAdminDashboard() {
                     onClick={() => handleRequest(req._id, 'approved')}
                     disabled={loadingAction === req._id + 'approved'}
                   >
-                    <CheckCircle size={14} className="mr-1" /> Approve
+                    <CheckCircle size={14} className="mr-1" /> {t('superAdmin.approve')}
                   </LuminaButton>
                   <LuminaButton
                     variant="danger"
@@ -374,12 +386,12 @@ export default function SuperAdminDashboard() {
                     onClick={() => handleRequest(req._id, 'rejected')}
                     disabled={loadingAction === req._id + 'rejected'}
                   >
-                    <XCircle size={14} className="mr-1" /> Reject
+                    <XCircle size={14} className="mr-1" /> {t('superAdmin.reject')}
                   </LuminaButton>
                 </div>
                       </div>
                       <div className="bg-gray-50/50 px-6 py-3 border-t border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        Submitted: {new Date(req.createdAt).toLocaleDateString()}
+                        {t('superAdmin.submitted')} {new Date(req.createdAt).toLocaleDateString()}
                       </div>
                     </motion.div>
                   ))}
@@ -393,13 +405,13 @@ export default function SuperAdminDashboard() {
             <motion.div key="passrecs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Password Resets</h1>
+                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">{t('superAdmin.password_resets')}</h1>
                   <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wide">
-                    {passRequests.length} password reset request{passRequests.length !== 1 ? 's' : ''} pending
+                    {passRequests.length} {t('superAdmin.apps_pending')}
                   </p>
                 </div>
                 <LuminaButton onClick={() => { fetchPassRequests(); toast.success('LIST SYNCED'); }} variant="secondary">
-                  <RefreshCw size={14} className="mr-2" /> Sync List
+                  <RefreshCw size={14} className="mr-2" /> {t('superAdmin.sync_list')}
                 </LuminaButton>
               </div>
 
@@ -408,8 +420,8 @@ export default function SuperAdminDashboard() {
                   <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
                     <CheckCircle size={32} className="text-green-500" />
                   </div>
-                  <h3 className="text-xl font-extrabold text-gray-900 mb-2 uppercase tracking-tight">Access Log Clear</h3>
-                  <p className="text-gray-500 max-w-xs font-medium">No pending password reset requests.</p>
+                  <h3 className="text-xl font-extrabold text-gray-900 mb-2 uppercase tracking-tight">{t('superAdmin.access_log_clear')}</h3>
+                  <p className="text-gray-500 max-w-xs font-medium">{t('superAdmin.no_pending_resets')}</p>
                 </div>
               ) : (
                 <motion.div 
@@ -446,8 +458,8 @@ export default function SuperAdminDashboard() {
                           </div>
                         </div>
                         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
-                          <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Request Type</div>
-                          <div className="text-sm font-semibold text-gray-700 leading-relaxed">Password Change Request</div>
+                          <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{t('superAdmin.request_type')}</div>
+                          <div className="text-sm font-semibold text-gray-700 leading-relaxed">{t('superAdmin.pass_change_req')}</div>
                         </div>
                         <div className="flex bg-white gap-2 mt-auto pt-6 border-t border-gray-100">
                   <LuminaButton
@@ -456,7 +468,7 @@ export default function SuperAdminDashboard() {
                     onClick={() => handlePassRequest(req._id, 'approved')}
                     disabled={loadingAction === 'pass' + req._id + 'approved'}
                   >
-                    <CheckCircle size={14} className="mr-1" /> Approve
+                    <CheckCircle size={14} className="mr-1" /> {t('superAdmin.approve')}
                   </LuminaButton>
                   <LuminaButton
                     variant="danger"
@@ -464,12 +476,12 @@ export default function SuperAdminDashboard() {
                     onClick={() => handlePassRequest(req._id, 'rejected')}
                     disabled={loadingAction === 'pass' + req._id + 'rejected'}
                   >
-                    <XCircle size={14} className="mr-1" /> Reject
+                    <XCircle size={14} className="mr-1" /> {t('superAdmin.reject')}
                   </LuminaButton>
                 </div>
                       </div>
                       <div className="bg-gray-50/50 px-6 py-3 border-t border-gray-100 flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        <span>Submitted: {new Date(req.createdAt).toLocaleDateString()}</span>
+                        <span>{t('superAdmin.submitted')} {new Date(req.createdAt).toLocaleDateString()}</span>
                         <span>{new Date(req.createdAt).toLocaleTimeString()}</span>
                       </div>
                     </motion.div>
@@ -482,21 +494,21 @@ export default function SuperAdminDashboard() {
           {/* ══ ACTIVE ADMINS TAB ══ */}
           {activeTab === 'admins' && (
             <motion.div key="admins" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <h1 style={{ fontWeight: 900, fontSize: '1.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Active Admins</h1>
+              <h1 style={{ fontWeight: 900, fontSize: '1.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>{t('superAdmin.active_admins')}</h1>
               <p style={{ opacity: 0.5, fontWeight: 700, fontSize: '0.85rem', marginBottom: '2rem' }}>
-                {admins.length} approved admin{admins.length !== 1 ? 's' : ''} on the platform.
+                {admins.length} {t('superAdmin.approved_admins')}
               </p>
               {admins.length === 0 ? (
                 <div style={{ border: '3px solid #E2E8F0', boxShadow: '5px 5px 0 #F1F5F9', padding: '3rem', textAlign: 'center', background: '#fff', maxWidth: '400px' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🚫</div>
-                  <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#64748B' }}>No approved admins yet</div>
+                  <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#64748B' }}>{t('superAdmin.no_approved_admins')}</div>
                 </div>
               ) : (
                 <div style={{ background: '#fff', border: '3px solid #E2E8F0', boxShadow: '6px 6px 0 #F1F5F9', overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: '#EEF2FF', color: '#4338CA' }}>
-                        {['Username', 'Email', 'Events Created', 'Joined', 'Actions'].map((h) => (
+                        {[t('superAdmin.username'), t('superAdmin.email'), t('superAdmin.events_created'), t('superAdmin.joined'), t('superAdmin.actions')].map((h) => (
                           <th key={h} style={{ padding: '0.9rem 1rem', textAlign: 'left', fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.5px', whiteSpace: 'nowrap' }}>{h}</th>
                         ))}
                       </tr>
@@ -531,7 +543,7 @@ export default function SuperAdminDashboard() {
                           <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8' }}>{new Date(admin.createdAt).toLocaleDateString()}</td>
                           <td style={{ padding: '0.85rem 1rem' }}>
                             <LuminaButton variant="danger" onClick={() => handleDelete(admin._id, admin.username)} disabled={loadingAction === 'del' + admin._id}>
-                              <Trash2 size={12} className="mr-1.5" /> Delete Admin
+                              <Trash2 size={12} className="mr-1.5" /> {t('superAdmin.delete_admin')}
                             </LuminaButton>
                           </td>
                         </motion.tr>
@@ -546,9 +558,9 @@ export default function SuperAdminDashboard() {
           {/* ══ SUPER ADMINS TAB ══ */}
           {activeTab === 'superadmins' && (
             <motion.div key="superadmins" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <h1 style={{ fontWeight: 900, fontSize: '1.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Super Admins</h1>
+              <h1 style={{ fontWeight: 900, fontSize: '1.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>{t('superAdmin.super_admins')}</h1>
               <p style={{ opacity: 0.5, fontWeight: 700, fontSize: '0.85rem', marginBottom: '2rem' }}>
-                Manage platform-level super admin accounts.
+                {t('superAdmin.manage_sa')}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px,400px) 1fr', gap: '2rem', alignItems: 'start' }}>
@@ -559,20 +571,20 @@ export default function SuperAdminDashboard() {
                   <div style={{ background: '#EEF2FF', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#4338CA' }}>
                     <UserPlus size={16} strokeWidth={3} />
                     <span style={{ fontWeight: 900, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                      Create Super Admin
+                      {t('superAdmin.create_sa')}
                     </span>
                   </div>
                   <form onSubmit={handleCreateSuperAdmin} style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <LuminaInput
-                      label="Username" name="username" value={saForm.username} required
+                      label={t('superAdmin.username')} name="username" value={saForm.username} required
                       onChange={e => setSaForm(f => ({ ...f, username: e.target.value }))}
                     />
                     <LuminaInput
-                      label="Email" name="email" type="email" value={saForm.email} required
+                      label={t('superAdmin.email')} name="email" type="email" value={saForm.email} required
                       onChange={e => setSaForm(f => ({ ...f, email: e.target.value }))}
                     />
                     <LuminaInput
-                      label="Password" name="password" type="password" value={saForm.password} required
+                      label={t('superAdmin.password')} name="password" type="password" value={saForm.password} required
                       onChange={e => setSaForm(f => ({ ...f, password: e.target.value }))}
                     />
                     <LuminaButton
@@ -582,7 +594,7 @@ export default function SuperAdminDashboard() {
                       disabled={saLoading}
                     >
                       <UserPlus size={16} className="mr-2" />
-                      {saLoading ? 'Provisioning...' : 'Provision Super Admin'}
+                      {saLoading ? t('superAdmin.provisioning') : t('superAdmin.provision_sa')}
                     </LuminaButton>
                   </form>
                 </div>
@@ -591,16 +603,16 @@ export default function SuperAdminDashboard() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                     <span style={{ fontWeight: 900, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                      {superAdmins.length} super admin{superAdmins.length !== 1 ? 's' : ''}
+                      {superAdmins.length} {t('superAdmin.sa_count')}
                     </span>
                     <LuminaButton onClick={() => { fetchSuperAdmins(); toast.success('List refreshed'); }} variant="secondary">
-                      <RefreshCw size={12} className="mr-2" /> Sync Records
+                      <RefreshCw size={12} className="mr-2" /> {t('superAdmin.sync_records')}
                     </LuminaButton>
                   </div>
 
                   {superAdmins.length === 0 ? (
                     <div style={{ border: '3px solid #E2E8F0', padding: '2rem', textAlign: 'center', background: '#fff', boxShadow: '4px 4px 0 #F1F5F9' }}>
-                      <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#94A3B8' }}>No super admins found</div>
+                      <div style={{ fontWeight: 900, textTransform: 'uppercase', color: '#94A3B8' }}>{t('superAdmin.no_sa_found')}</div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -632,7 +644,7 @@ export default function SuperAdminDashboard() {
                           </div>
                           <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                             <span style={{ background: '#EEF2FF', border: '2px solid #E0E7FF', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', whiteSpace: 'nowrap', color: '#4338CA' }}>
-                              Super Admin
+                              {t('superAdmin.super_admins')}
                             </span>
                           </div>
                         </motion.div>
