@@ -270,28 +270,28 @@ export default function Dashboard() {
                             <LuminaButton 
                               onClick={() => navigate(`/event/${event._id}/qr`)}
                               variant="primary"
-                              className="!py-2"
+                              className="py-2!"
                             >
                               <QrCode size={14} /> QR Codes
                             </LuminaButton>
                             <LuminaButton 
                               onClick={() => navigate(`/event/${event._id}/stats`)}
                               variant="secondary"
-                              className="!py-2"
+                              className="py-2!"
                             >
                               <BarChart2 size={14} /> Stats
                             </LuminaButton>
                             <LuminaButton 
                               onClick={() => handleEdit(event)}
                               variant="secondary"
-                              className="!py-2 !text-blue-600 !border-blue-100 !bg-blue-50/50 hover:!bg-blue-50"
+                              className="py-2! text-blue-600! border-blue-100! bg-blue-50/50! hover:bg-blue-50!"
                             >
                               <Edit2 size={14} /> Edit
                             </LuminaButton>
                             <LuminaButton 
                               onClick={() => handleDelete(event._id)}
                               variant="ghost"
-                              className="!py-2 !text-red-500 hover:!bg-red-50"
+                              className="py-2! text-red-500! hover:bg-red-50!"
                             >
                               <Trash2 size={14} /> Delete
                             </LuminaButton>

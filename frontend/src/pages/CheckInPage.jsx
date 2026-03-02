@@ -216,7 +216,7 @@ export default function CheckInPage() {
             </div>
           </div>
 
-          <div className="lumina-card !p-0 overflow-hidden shadow-2xl">
+          <div className="lumina-card p-0! overflow-hidden shadow-2xl">
             {/* Event Info */}
             <div
               className="p-8 border-b border-gray-100"
@@ -262,7 +262,7 @@ export default function CheckInPage() {
                 variant="primary"
                 disabled={submitting || !name.trim()}
                 fullWidth
-                className={isCheckIn ? '' : '!bg-purple-600 !shadow-purple-100 hover:!bg-purple-700'}
+                className={isCheckIn ? '' : 'bg-purple-600! shadow-purple-100! hover:bg-purple-700!'}
               >
                 {submitting ? (
                   'Syncing...'
