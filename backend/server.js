@@ -46,7 +46,11 @@ app.use((req, res) => {
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000, // Fail fast if MongoDB is unreachable
+    socketTimeoutMS: 45000,         // Close idle sockets after 45s
+    maxPoolSize: 10,                // Maintain up to 10 reusable connections
+  })
   .then(() => {
     console.log('✅ Connected to MongoDB Atlas');
     const PORT = process.env.PORT || 5000;
